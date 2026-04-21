@@ -18,10 +18,10 @@ describe('EdgeTtsService', () => {
   it('returns cached file if exists without invoking generator', async () => {
     const generator = vi.fn();
     const svc = new EdgeTtsService({ cacheDir, generator });
-    const path = svc.cachePathFor('hello', 'zh-CN-XiaoxiaoNeural');
+    const path = svc.cachePathFor({ text: 'hello' });
     writeFileSync(path, Buffer.from('FAKE_MP3'));
 
-    const result = await svc.getOrGenerate('hello', 'zh-CN-XiaoxiaoNeural');
+    const result = await svc.getOrGenerate({ text: 'hello' });
     expect(result.fromCache).toBe(true);
     expect(generator).not.toHaveBeenCalled();
     expect(existsSync(result.path)).toBe(true);
@@ -31,7 +31,7 @@ describe('EdgeTtsService', () => {
     const generator = vi.fn(async () => Buffer.from('GEN_MP3'));
     const svc = new EdgeTtsService({ cacheDir, generator });
 
-    const result = await svc.getOrGenerate('hi', 'zh-CN-XiaoxiaoNeural');
+    const result = await svc.getOrGenerate({ text: 'hi' });
     expect(result.fromCache).toBe(false);
     expect(generator).toHaveBeenCalledOnce();
     expect(existsSync(result.path)).toBe(true);
@@ -47,10 +47,42 @@ describe('EdgeTtsService', () => {
     const svc = new EdgeTtsService({ cacheDir, generator });
 
     const [a, b] = await Promise.all([
-      svc.getOrGenerate('same', 'v'),
-      svc.getOrGenerate('same', 'v'),
+      svc.getOrGenerate({ text: 'same', voice: 'v' }),
+      svc.getOrGenerate({ text: 'same', voice: 'v' }),
     ]);
     expect(calls).toBe(1);
     expect(a.path).toBe(b.path);
+  });
+
+  it('uses pinyin+tone for cache key (independent of fallback text)', async () => {
+    const generator = vi.fn(async () => Buffer.from('X'));
+    const svc = new EdgeTtsService({ cacheDir, generator });
+
+    const r1 = await svc.getOrGenerate({ text: '妈', pinyin: 'ma', tone: 1 });
+    const r2 = await svc.getOrGenerate({ text: '麻麻', pinyin: 'ma', tone: 1 });
+
+    expect(r1.path).toBe(r2.path);
+    expect(generator).toHaveBeenCalledOnce();
+  });
+
+  it('differentiates cache by tone', async () => {
+    const generator = vi.fn(async () => Buffer.from('X'));
+    const svc = new EdgeTtsService({ cacheDir, generator });
+
+    const r1 = await svc.getOrGenerate({ text: '妈', pinyin: 'ma', tone: 1 });
+    const r2 = await svc.getOrGenerate({ text: '妈', pinyin: 'ma', tone: 3 });
+
+    expect(r1.path).not.toBe(r2.path);
+    expect(generator).toHaveBeenCalledTimes(2);
+  });
+
+  it('passes built SSML to generator when pinyin+tone present', async () => {
+    const generator = vi.fn(async () => Buffer.from('X'));
+    const svc = new EdgeTtsService({ cacheDir, generator });
+
+    await svc.getOrGenerate({ text: '妈', pinyin: 'ma', tone: 2 });
+
+    const ssml = generator.mock.calls[0][0] as string;
+    expect(ssml).toContain('<phoneme alphabet="sapi" ph="ma 2">妈</phoneme>');
   });
 });
