@@ -3,6 +3,7 @@ import type { JSX } from 'react';
 import { LoginPage } from './pages/LoginPage';
 import { HomePage } from './pages/HomePage';
 import { CardsPage } from './pages/CardsPage';
+import { GamePage } from './pages/GamePage';
 import { ProfilePage } from './pages/ProfilePage';
 import { useUser } from './hooks/useUser';
 
@@ -18,8 +19,8 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<RequireUser><HomePage /></RequireUser>} />
       <Route path="/cards" element={<RequireUser><CardsPage /></RequireUser>} />
+      <Route path="/game" element={<RequireUser><GamePage /></RequireUser>} />
       <Route path="/profile" element={<RequireUser><ProfilePage /></RequireUser>} />
-      <Route path="/game" element={<RequireUser><div style={{padding:32}}>游戏页（Task 16+ 实现）</div></RequireUser>} />
     </Routes>
   );
 }
