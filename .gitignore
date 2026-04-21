@@ -8,3 +8,8 @@ server/cache/
 server/data/
 *.db
 *.mp3
+
+# env
+.env
+.env.local
+.env.*.local
