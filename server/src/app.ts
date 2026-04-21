@@ -3,9 +3,12 @@ import cors from 'cors';
 import type { DB } from './db/connection.js';
 import { usersRouter } from './routes/users.js';
 import { progressRouter } from './routes/progress.js';
+import { ttsRouter } from './routes/tts.js';
+import type { EdgeTtsService } from './services/edgeTts.js';
 
 export interface AppDeps {
   db: DB;
+  tts?: EdgeTtsService;
 }
 
 export function createApp(deps?: AppDeps): Express {
@@ -20,6 +23,9 @@ export function createApp(deps?: AppDeps): Express {
   if (deps?.db) {
     app.use('/api/users', usersRouter(deps.db));
     app.use('/api/progress', progressRouter(deps.db));
+  }
+  if (deps?.tts) {
+    app.use('/api/tts', ttsRouter(deps.tts));
   }
 
   return app;
