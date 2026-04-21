@@ -24,7 +24,7 @@ export function PinyinCard({ item, onPrev, onNext, onLearned }: Props) {
 
       {item.hasTones && item.tones ? (
         <div style={{ marginTop: 24 }}>
-          <ToneButtons tones={item.tones} onPlay={() => onLearned?.()} />
+          <ToneButtons tones={item.tones} basePinyin={item.display} onPlay={() => onLearned?.()} />
         </div>
       ) : (
         <div style={{ marginTop: 24 }}>
