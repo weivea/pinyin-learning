@@ -27,4 +27,8 @@ describe('pinyin data integrity', () => {
       expect(item.audioText.length).toBeGreaterThan(0);
     }
   });
+
+  it('contains 63 pinyin items total', () => {
+    expect(PINYIN_DATA.length).toBe(63);
+  });
 });
