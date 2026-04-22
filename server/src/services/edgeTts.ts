@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdirSync, existsSync, writeFileSync } from 'node:fs';
+import { mkdirSync, existsSync, writeFileSync, statSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildSsml } from './ssml.js';
 
@@ -60,7 +60,11 @@ export class EdgeTtsService {
   async getOrGenerate(req: TtsRequest): Promise<TtsResult> {
     const voice = req.voice ?? DEFAULT_VOICE;
     const path = this.cachePathFor(req);
-    if (existsSync(path)) return { path, fromCache: true };
+    if (existsSync(path)) {
+      // 防御：早先版本可能写入过 0 字节的失败缓存；命中时清理掉重新生成。
+      if (statSync(path).size > 0) return { path, fromCache: true };
+      unlinkSync(path);
+    }
 
     const existing = this.inFlight.get(path);
     if (existing) return existing;
@@ -68,6 +72,9 @@ export class EdgeTtsService {
     const ssml = buildSsml({ ...req, voice });
     const promise = (async () => {
       const buffer = await this.generator(ssml, voice);
+      if (!buffer || buffer.length === 0) {
+        throw new Error('TTS_EMPTY_AUDIO');
+      }
       writeFileSync(path, buffer);
       return { path, fromCache: false };
     })().finally(() => {

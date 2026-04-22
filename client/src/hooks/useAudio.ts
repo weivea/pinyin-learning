@@ -123,7 +123,9 @@ export function useAudio() {
       let url = pinyinAudioUrl(step.base, step.tone);
       try {
         const head = await fetch(url, { method: 'HEAD' });
-        if (!head.ok) throw new Error(`static ${head.status}`);
+        // 0 字节的响应也按失败处理（兼容某些代理把 404 转成空 200）。
+        const len = Number(head.headers.get('content-length') ?? '');
+        if (!head.ok || len === 0) throw new Error(`static ${head.status}/${len}`);
       } catch {
         if (step.hanzi) {
           url = ttsUrl(step.hanzi, step.tone ? { pinyin: step.base, tone: step.tone } : undefined);

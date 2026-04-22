@@ -85,4 +85,24 @@ describe('EdgeTtsService', () => {
     const ssml = generator.mock.calls[0][0] as string;
     expect(ssml).toContain('<phoneme alphabet="sapi" ph="ma 2">妈</phoneme>');
   });
+
+  it('throws and does NOT cache when generator returns empty buffer', async () => {
+    const generator = vi.fn(async () => Buffer.alloc(0));
+    const svc = new EdgeTtsService({ cacheDir, generator });
+
+    await expect(svc.getOrGenerate({ text: '空' })).rejects.toThrow(/empty/i);
+    const path = svc.cachePathFor({ text: '空' });
+    expect(existsSync(path)).toBe(false);
+  });
+
+  it('regenerates when on-disk cache is a stale 0-byte file', async () => {
+    const generator = vi.fn(async () => Buffer.from('REAL_MP3'));
+    const svc = new EdgeTtsService({ cacheDir, generator });
+    const path = svc.cachePathFor({ text: 'recover' });
+    writeFileSync(path, Buffer.alloc(0));
+
+    const result = await svc.getOrGenerate({ text: 'recover' });
+    expect(result.fromCache).toBe(false);
+    expect(generator).toHaveBeenCalledOnce();
+  });
 });
