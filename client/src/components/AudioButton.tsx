@@ -20,8 +20,9 @@ export function AudioButton({ text, pinyin, tone, label = '🔊', size = 'md' }:
   const handleClick = () => {
     if (pinyin) {
       // 任何提供拼音的场景都走静态音频（带调或无调）。
+      // 同时把汉字传过去，作为静态资源缺失时的 Edge TTS 回退输入。
       const base = stripTone(pinyin);
-      void playPinyin(base, tone);
+      void playPinyin(base, tone, text);
     } else {
       // 仅汉字（如例字"妈""爷爷"）走 Edge TTS。
       void play(text);
