@@ -36,20 +36,18 @@ describe('buildSpellSteps', () => {
     ]);
   });
 
-  it('三拼: q + ü(写作u) + n', () => {
+  it('两拼: q + ün(写作 un)', () => {
     expect(buildSpellSteps('裙', 'qún')).toEqual([
       { base: 'q', caption: 'q' },
-      { base: 'ü', caption: 'ü' },
-      { base: 'n', caption: 'n' },
+      { base: 'ün', caption: 'ün' },
       { base: 'qun', tone: 2, hanzi: '裙', caption: 'qún 裙' },
     ]);
   });
 
-  it('三拼: x + ü(写作u) + e', () => {
+  it('两拼: x + üe(写作 ue)', () => {
     expect(buildSpellSteps('学', 'xué')).toEqual([
       { base: 'x', caption: 'x' },
-      { base: 'ü', caption: 'ü' },
-      { base: 'e', caption: 'e' },
+      { base: 'üe', caption: 'üe' },
       { base: 'xue', tone: 2, hanzi: '学', caption: 'xué 学' },
     ]);
   });
@@ -119,6 +117,51 @@ describe('buildSpellSteps', () => {
       { base: 'u', caption: 'u' },
       { base: 'ang', caption: 'ang' },
       { base: 'chuang', tone: 2, hanzi: '床', caption: 'chuáng 床' },
+    ]);
+  });
+
+  it('三拼: x + i + ong', () => {
+    expect(buildSpellSteps('熊', 'xióng')).toEqual([
+      { base: 'x', caption: 'x' },
+      { base: 'i', caption: 'i' },
+      { base: 'ong', caption: 'ong' },
+      { base: 'xiong', tone: 2, hanzi: '熊', caption: 'xióng 熊' },
+    ]);
+  });
+
+  it('三拼: x + i + an (ian)', () => {
+    expect(buildSpellSteps('先', 'xiān')).toEqual([
+      { base: 'x', caption: 'x' },
+      { base: 'i', caption: 'i' },
+      { base: 'an', caption: 'an' },
+      { base: 'xian', tone: 1, hanzi: '先', caption: 'xiān 先' },
+    ]);
+  });
+
+  it('三拼: q + ü + an (üan)', () => {
+    expect(buildSpellSteps('全', 'quán')).toEqual([
+      { base: 'q', caption: 'q' },
+      { base: 'ü', caption: 'ü' },
+      { base: 'an', caption: 'an' },
+      { base: 'quan', tone: 2, hanzi: '全', caption: 'quán 全' },
+    ]);
+  });
+
+  it('三拼: g + u + o (uo)', () => {
+    expect(buildSpellSteps('果', 'guǒ')).toEqual([
+      { base: 'g', caption: 'g' },
+      { base: 'u', caption: 'u' },
+      { base: 'o', caption: 'o' },
+      { base: 'guo', tone: 3, hanzi: '果', caption: 'guǒ 果' },
+    ]);
+  });
+
+  it('三拼: x + i + ao (iao)', () => {
+    expect(buildSpellSteps('小', 'xiǎo')).toEqual([
+      { base: 'x', caption: 'x' },
+      { base: 'i', caption: 'i' },
+      { base: 'ao', caption: 'ao' },
+      { base: 'xiao', tone: 3, hanzi: '小', caption: 'xiǎo 小' },
     ]);
   });
 });

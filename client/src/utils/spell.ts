@@ -31,9 +31,13 @@ const ZERO_INITIAL_BASES = new Set([
   'o', 'ou',
 ]);
 
-/** 三拼介母后允许的韵母尾部，用于切分三拼音节。 */
+/**
+ * 三拼音节的"介母后尾巴"集合。
+ * 标准三拼韵母 11 个：ia ua uo uai iao ian iang uan uang iong üan
+ * 去掉介母 i/u/ü 后剩下的尾韵：a o ai ao an ang ong
+ */
 const TRI_TAILS = new Set([
-  'a', 'o', 'e', 'ai', 'an', 'ang', 'ao', 'n',
+  'a', 'o', 'ai', 'ao', 'an', 'ang', 'ong',
 ]);
 
 const TONE_NUM: Record<string, 1 | 2 | 3 | 4> = {
