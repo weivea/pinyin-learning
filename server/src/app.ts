@@ -4,11 +4,13 @@ import type { DB } from './db/connection.js';
 import { usersRouter } from './routes/users.js';
 import { progressRouter } from './routes/progress.js';
 import { ttsRouter } from './routes/tts.js';
+import { pinyinAudioRouter } from './routes/pinyinAudio.js';
 import type { EdgeTtsService } from './services/edgeTts.js';
 
 export interface AppDeps {
   db: DB;
   tts?: EdgeTtsService;
+  pinyinAudioDir?: string;
 }
 
 export function createApp(deps?: AppDeps): Express {
@@ -26,6 +28,9 @@ export function createApp(deps?: AppDeps): Express {
   }
   if (deps?.tts) {
     app.use('/api/tts', ttsRouter(deps.tts));
+  }
+  if (deps?.pinyinAudioDir) {
+    app.use('/api/audio/pinyin', pinyinAudioRouter(deps.pinyinAudioDir));
   }
 
   return app;
