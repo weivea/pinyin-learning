@@ -65,9 +65,16 @@ export function ttsRouter(tts: EdgeTtsService): Router {
     }
 
     res.setHeader('Content-Type', 'audio/mpeg');
-    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    // 用 ETag + revalidate；避免浏览器把短暂的空响应/失败响应永久缓存。
+    // result.path 唯一对应一份 mp3，文件名（hash）作为 ETag。
+    const etag = `"${result.path.split('/').pop()}"`;
+    res.setHeader('ETag', etag);
+    res.setHeader('Cache-Control', 'public, max-age=86400, must-revalidate');
     res.setHeader('X-TTS-Mode', mode);
     res.setHeader('X-TTS-Cache', result.fromCache ? 'hit' : 'miss');
+    if (req.headers['if-none-match'] === etag) {
+      return res.status(304).end();
+    }
     createReadStream(result.path).pipe(res);
   });
 
