@@ -112,7 +112,7 @@ export function useAudio() {
     cancelSequence();
     stopCurrent();
     const myId = ++seqIdRef.current;
-    const gap = opts?.gapMs ?? 400;
+    const gap = opts?.gapMs ?? 220;
 
     for (let i = 0; i < steps.length; i++) {
       if (seqIdRef.current !== myId) return;
@@ -128,7 +128,11 @@ export function useAudio() {
         if (!head.ok || len === 0) throw new Error(`static ${head.status}/${len}`);
       } catch {
         if (step.hanzi) {
-          url = ttsUrl(step.hanzi, step.tone ? { pinyin: step.base, tone: step.tone } : undefined);
+          // 拼读 fallback：单字朗读容易显得短促，放慢 20%。
+          url = ttsUrl(step.hanzi, {
+            ...(step.tone ? { pinyin: step.base, tone: step.tone } : {}),
+            rate: '-20%',
+          });
         } else {
           // 既无静态资源也没汉字回退：跳过这一段
           continue;

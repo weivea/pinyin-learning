@@ -8,6 +8,8 @@ export interface TtsRequest {
   pinyin?: string;
   tone?: 1 | 2 | 3 | 4;
   voice?: string;
+  /** 朗读速度，如 "-20%"。透传给 SSML <prosody>。 */
+  rate?: string;
 }
 
 export type TtsGenerator = (ssml: string, voice: string) => Promise<Buffer>;
@@ -50,9 +52,10 @@ export class EdgeTtsService {
 
   cachePathFor(req: TtsRequest): string {
     const voice = req.voice ?? DEFAULT_VOICE;
+    const rate = req.rate ?? '';
     const keyInput = req.pinyin && req.tone
-      ? `${voice}|${req.pinyin}|${req.tone}`
-      : `${voice}|${req.text}`;
+      ? `${voice}|${req.pinyin}|${req.tone}|${rate}`
+      : `${voice}|${req.text}|${rate}`;
     const hash = createHash('sha256').update(keyInput).digest('hex');
     return join(this.cacheDir, `${hash}.mp3`);
   }

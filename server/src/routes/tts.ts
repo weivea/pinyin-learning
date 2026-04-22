@@ -19,6 +19,9 @@ export function ttsRouter(tts: EdgeTtsService): Router {
     const voice = typeof req.query.voice === 'string' && req.query.voice ? req.query.voice : DEFAULT_VOICE;
     const pinyin = typeof req.query.pinyin === 'string' && req.query.pinyin ? req.query.pinyin : undefined;
     const toneRaw = req.query.tone;
+    // 仅允许 -50% .. +50% 之类的 ±N% 形式，挡掉注入。
+    const rateRaw = typeof req.query.rate === 'string' ? req.query.rate : '';
+    const rate = /^[-+]?\d{1,2}%$/.test(rateRaw) ? rateRaw : undefined;
 
     if (text.trim() === '') {
       return res.status(400).json({ error: { code: 'INVALID_INPUT', message: 'text required' } });
@@ -40,8 +43,8 @@ export function ttsRouter(tts: EdgeTtsService): Router {
       tone = parsed ?? undefined;
     }
 
-    const baseReq: TtsRequest = { text, voice };
-    const phonemeReq: TtsRequest = pinyin && tone ? { text, voice, pinyin, tone } : baseReq;
+    const baseReq: TtsRequest = { text, voice, rate };
+    const phonemeReq: TtsRequest = pinyin && tone ? { text, voice, pinyin, tone, rate } : baseReq;
     const phonemeMode = Boolean(pinyin && tone);
 
     let result;
