@@ -16,6 +16,8 @@ export function ExampleWord({ word }: Props) {
       <div style={{ fontSize: 24, color: '#666' }}>{word.pinyin}</div>
       <AudioButton
         text={word.hanzi}
+        pinyin={word.pinyin}
+        tone={word.tone}
         size="sm"
       />
     </div>
