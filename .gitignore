@@ -8,6 +8,8 @@ server/cache/
 server/data/
 *.db
 *.mp3
+# keep checked-in pinyin syllable audio assets
+!server/audio/pinyin/*.mp3
 
 # env
 .env
