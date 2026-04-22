@@ -3,11 +3,13 @@ import { PINYIN_DATA } from '../data/pinyin';
 import { useAudio } from '../hooks/useAudio';
 import { pickN, shuffle, starsForScore } from './gameUtils';
 import { StarRating } from './StarRating';
+import { pickAudioForItem, type PickedAudio } from './pickAudio';
 import type { PinyinItem } from '../types';
 
 interface Question {
   answer: PinyinItem;
   options: PinyinItem[];
+  audio: PickedAudio;
 }
 
 const TOTAL_QUESTIONS = 10;
@@ -16,7 +18,11 @@ function buildQuestions(): Question[] {
   const picks = pickN(PINYIN_DATA, TOTAL_QUESTIONS);
   return picks.map(answer => {
     const distractors = pickN(PINYIN_DATA.filter(p => p.id !== answer.id), 3);
-    return { answer, options: shuffle([answer, ...distractors]) };
+    return {
+      answer,
+      options: shuffle([answer, ...distractors]),
+      audio: pickAudioForItem(answer),
+    };
   });
 }
 
@@ -29,12 +35,12 @@ export function GameListenChoose({ onFinish }: Props) {
   const [index, setIndex] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [feedback, setFeedback] = useState<'right' | 'wrong' | null>(null);
-  const { play } = useAudio();
+  const { playPinyin } = useAudio();
   const current = questions[index];
 
   useEffect(() => {
-    if (current) void play(current.answer.audioText);
-  }, [current, play]);
+    if (current) void playPinyin(current.audio.base, current.audio.tone, current.audio.text);
+  }, [current, playPinyin]);
 
   const stars = useMemo(() => starsForScore(correct, questions.length), [correct, questions.length]);
 
@@ -60,7 +66,7 @@ export function GameListenChoose({ onFinish }: Props) {
 
       <h2 style={{ fontSize: 32, marginTop: 24 }}>听一听，选对的字母 👇</h2>
       <button
-        onClick={() => void play(current.answer.audioText)}
+        onClick={() => void playPinyin(current.audio.base, current.audio.tone, current.audio.text)}
         style={{ fontSize: 64, padding: 24, borderRadius: 32, border: 'none', background: '#ffd166', cursor: 'pointer', marginTop: 16 }}
         aria-label="再听一次"
       >
