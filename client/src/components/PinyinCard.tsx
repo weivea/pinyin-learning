@@ -28,7 +28,7 @@ export function PinyinCard({ item, onPrev, onNext, onLearned }: Props) {
         </div>
       ) : (
         <div style={{ marginTop: 24 }}>
-          <AudioButton text={item.audioText} size="lg" />
+          <AudioButton text={item.audioText} pinyin={item.id} size="lg" />
         </div>
       )}
 

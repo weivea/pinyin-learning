@@ -17,7 +17,7 @@ export function ToneButtons({ tones, basePinyin, onPlay }: Props) {
       {tones.map(t => (
         <button
           key={t.tone}
-          onClick={() => { void playPinyin(base, t.tone, t.audioText); onPlay?.(t); }}
+          onClick={() => { void playPinyin(base, t.tone); onPlay?.(t); }}
           aria-label={`播放 ${t.text}`}
           style={{
             fontSize: 56, padding: '16px 28px', minWidth: 96,
