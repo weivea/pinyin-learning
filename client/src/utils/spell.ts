@@ -111,7 +111,7 @@ export function buildSpellSteps(hanzi: string, pinyin: string): SpellStep[] {
         { base: initial, caption: initial },
         { base: head, caption: head },
         { base: tail, caption: tail },
-        { base: tail, tone, hanzi, caption: finalCaption },
+        { base: initial + rest, tone, hanzi, caption: finalCaption },
       ];
     }
   }
@@ -120,6 +120,6 @@ export function buildSpellSteps(hanzi: string, pinyin: string): SpellStep[] {
   return [
     { base: initial, caption: initial },
     { base: restUe, caption: restUe },
-    { base: restUe, tone, hanzi, caption: finalCaption },
+    { base: initial + rest, tone, hanzi, caption: finalCaption },
   ];
 }

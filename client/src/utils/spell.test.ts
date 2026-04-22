@@ -6,7 +6,7 @@ describe('buildSpellSteps', () => {
     expect(buildSpellSteps('爸', 'bà')).toEqual([
       { base: 'b', caption: 'b' },
       { base: 'a', caption: 'a' },
-      { base: 'a', tone: 4, hanzi: '爸', caption: 'bà 爸' },
+      { base: 'ba', tone: 4, hanzi: '爸', caption: 'bà 爸' },
     ]);
   });
 
@@ -14,7 +14,7 @@ describe('buildSpellSteps', () => {
     expect(buildSpellSteps('风', 'fēng')).toEqual([
       { base: 'f', caption: 'f' },
       { base: 'eng', caption: 'eng' },
-      { base: 'eng', tone: 1, hanzi: '风', caption: 'fēng 风' },
+      { base: 'feng', tone: 1, hanzi: '风', caption: 'fēng 风' },
     ]);
   });
 
@@ -23,7 +23,7 @@ describe('buildSpellSteps', () => {
       { base: 'j', caption: 'j' },
       { base: 'i', caption: 'i' },
       { base: 'a', caption: 'a' },
-      { base: 'a', tone: 1, hanzi: '家', caption: 'jiā 家' },
+      { base: 'jia', tone: 1, hanzi: '家', caption: 'jiā 家' },
     ]);
   });
 
@@ -32,16 +32,16 @@ describe('buildSpellSteps', () => {
       { base: 'g', caption: 'g' },
       { base: 'u', caption: 'u' },
       { base: 'a', caption: 'a' },
-      { base: 'a', tone: 1, hanzi: '瓜', caption: 'guā 瓜' },
+      { base: 'gua', tone: 1, hanzi: '瓜', caption: 'guā 瓜' },
     ]);
   });
 
-  it('三拼: q + ü(写作u) + an', () => {
+  it('三拼: q + ü(写作u) + n', () => {
     expect(buildSpellSteps('裙', 'qún')).toEqual([
       { base: 'q', caption: 'q' },
       { base: 'ü', caption: 'ü' },
       { base: 'n', caption: 'n' },
-      { base: 'n', tone: 2, hanzi: '裙', caption: 'qún 裙' },
+      { base: 'qun', tone: 2, hanzi: '裙', caption: 'qún 裙' },
     ]);
   });
 
@@ -50,7 +50,7 @@ describe('buildSpellSteps', () => {
       { base: 'x', caption: 'x' },
       { base: 'ü', caption: 'ü' },
       { base: 'e', caption: 'e' },
-      { base: 'e', tone: 2, hanzi: '学', caption: 'xué 学' },
+      { base: 'xue', tone: 2, hanzi: '学', caption: 'xué 学' },
     ]);
   });
 
@@ -58,7 +58,7 @@ describe('buildSpellSteps', () => {
     expect(buildSpellSteps('绿', 'lǜ')).toEqual([
       { base: 'l', caption: 'l' },
       { base: 'ü', caption: 'ü' },
-      { base: 'ü', tone: 4, hanzi: '绿', caption: 'lǜ 绿' },
+      { base: 'lü', tone: 4, hanzi: '绿', caption: 'lǜ 绿' },
     ]);
   });
 
@@ -66,7 +66,7 @@ describe('buildSpellSteps', () => {
     expect(buildSpellSteps('橘', 'jú')).toEqual([
       { base: 'j', caption: 'j' },
       { base: 'ü', caption: 'ü' },
-      { base: 'ü', tone: 2, hanzi: '橘', caption: 'jú 橘' },
+      { base: 'ju', tone: 2, hanzi: '橘', caption: 'jú 橘' },
     ]);
   });
 
@@ -109,16 +109,16 @@ describe('buildSpellSteps', () => {
     expect(buildSpellSteps('猪', 'zhū')).toEqual([
       { base: 'zh', caption: 'zh' },
       { base: 'u', caption: 'u' },
-      { base: 'u', tone: 1, hanzi: '猪', caption: 'zhū 猪' },
+      { base: 'zhu', tone: 1, hanzi: '猪', caption: 'zhū 猪' },
     ]);
   });
 
-  it('三拼: zh + u + ang', () => {
+  it('三拼: ch + u + ang', () => {
     expect(buildSpellSteps('床', 'chuáng')).toEqual([
       { base: 'ch', caption: 'ch' },
       { base: 'u', caption: 'u' },
       { base: 'ang', caption: 'ang' },
-      { base: 'ang', tone: 2, hanzi: '床', caption: 'chuáng 床' },
+      { base: 'chuang', tone: 2, hanzi: '床', caption: 'chuáng 床' },
     ]);
   });
 });
