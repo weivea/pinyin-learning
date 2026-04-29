@@ -5,6 +5,7 @@ import { HomePage } from './pages/HomePage';
 import { CardsPage } from './pages/CardsPage';
 import { GamePage } from './pages/GamePage';
 import { ProfilePage } from './pages/ProfilePage';
+import { RecitePage } from './pages/RecitePage';
 import { useUser } from './hooks/useUser';
 
 function RequireUser({ children }: { children: JSX.Element }) {
@@ -21,6 +22,7 @@ export default function App() {
       <Route path="/cards" element={<RequireUser><CardsPage /></RequireUser>} />
       <Route path="/game" element={<RequireUser><GamePage /></RequireUser>} />
       <Route path="/profile" element={<RequireUser><ProfilePage /></RequireUser>} />
+      <Route path="/recite" element={<RequireUser><RecitePage /></RequireUser>} />
     </Routes>
   );
 }

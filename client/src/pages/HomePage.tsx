@@ -16,6 +16,7 @@ export function HomePage() {
         <HomeButton to="/cards" emoji="📚" label="学拼音" color="#8ecae6" />
         <HomeButton to="/game" emoji="🎮" label="玩游戏" color="#fb8500" />
         <HomeButton to="/profile" emoji="🏆" label="我的进度" color="#06d6a0" />
+        <HomeButton to="/recite" emoji="📖" label="背诵表" color="#bb8fce" />
       </div>
     </div>
   );
