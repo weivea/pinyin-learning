@@ -13,7 +13,8 @@ interface Props {
 
 const GAP_MS = 120;
 const PINYIN_GAP_MS = 30;
-const HANZI_RATE = '-20%';
+const HANZI_RATE = '-35%';
+const PINYIN_PLAYBACK_RATE = 1.25;
 const FALLBACK_PER_TOKEN_MS = 350;
 
 /** CJK Unified Ideographs，与 tokenize 保持一致。 */
@@ -49,8 +50,10 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
   const playOnce = (
     url: string,
     onProgress?: (elapsedMs: number, totalMs: number) => void,
+    playbackRate?: number,
   ) => new Promise<void>((resolve) => {
     const audio = new Audio(url);
+    if (playbackRate && playbackRate > 0) audio.playbackRate = playbackRate;
     audioRef.current = audio;
     let raf = 0;
     const cleanup = () => {
@@ -117,7 +120,7 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
 
       if (group.kind === 'pinyin') {
         setActiveIndex(group.index);
-        await playOnce(pinyinAudioUrl(group.token));
+        await playOnce(pinyinAudioUrl(group.token), undefined, PINYIN_PLAYBACK_RATE);
       } else {
         // 中文整段连读，按时间窗推进每个字的高亮
         const indices = group.indices;
