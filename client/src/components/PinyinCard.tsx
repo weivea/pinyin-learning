@@ -3,6 +3,7 @@ import type { PinyinItem } from '../types';
 import { AudioButton } from './AudioButton';
 import { ToneButtons } from './ToneButtons';
 import { ExampleWord } from './ExampleWord';
+import { MnemonicSection } from './MnemonicSection';
 
 interface Props {
   item: PinyinItem;
@@ -31,6 +32,12 @@ export function PinyinCard({ item, onPrev, onNext, onLearned }: Props) {
           <AudioButton text={item.audioText} pinyin={item.id} size="lg" />
         </div>
       )}
+
+      <MnemonicSection
+        pinyinId={item.id}
+        mnemonic={item.mnemonic}
+        rhyme={item.rhyme}
+      />
 
       <h3 style={{ marginTop: 32, fontSize: 24, color: '#666' }}>试着读这些字：</h3>
       <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 16, marginTop: 12 }}>
