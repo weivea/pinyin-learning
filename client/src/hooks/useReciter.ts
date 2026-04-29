@@ -32,6 +32,9 @@ export function useReciter<T>(items: T[], options: ReciterOptions<T> = {}): UseR
   const perItemTimeoutRef = useRef(perItemTimeoutMs);
   perItemTimeoutRef.current = perItemTimeoutMs;
 
+  const statusRef = useRef<ReciterStatus>('idle');
+  useEffect(() => { statusRef.current = status; }, [status]);
+
   const cancelledRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const runIdRef = useRef(0);
@@ -83,9 +86,35 @@ export function useReciter<T>(items: T[], options: ReciterOptions<T> = {}): UseR
     setCurrentIndex(-1);
   }, []);
 
-  const pause = useCallback(() => { /* stub for next task */ }, []);
-  const resume = useCallback(() => { /* stub for next task */ }, []);
-  const playOne = useCallback((_idx: number) => { /* stub */ }, []);
+  const pause = useCallback(() => {
+    setStatus(prev => {
+      if (prev !== 'playing') return prev;
+      runIdRef.current++;          // 终止当前 run
+      cancelledRef.current = true; // 即时停下 in-flight loop
+      clearTimer();
+      return 'paused';
+    });
+  }, []);
+
+  const resume = useCallback(() => {
+    setStatus(prev => {
+      if (prev !== 'paused') return prev;
+      cancelledRef.current = false;
+      runIdRef.current++;
+      const next = currentIndex + 1; // 不重播当前字
+      if (next >= itemsRef.current.length) {
+        return 'finished';
+      }
+      void playFrom(next, runIdRef.current);
+      return 'playing';
+    });
+  }, [currentIndex, playFrom]);
+
+  const playOne = useCallback((idx: number) => {
+    if (statusRef.current === 'playing') return;
+    if (idx < 0 || idx >= itemsRef.current.length) return;
+    void onItemRef.current?.(itemsRef.current[idx], idx);
+  }, []);
 
   useEffect(() => () => {
     cancelledRef.current = true;
