@@ -1,0 +1,4 @@
+# Coqui TTS（社区维护 fork，原仓库已归档）
+coqui-tts>=0.24
+torch>=2.0
+soundfile>=0.12
