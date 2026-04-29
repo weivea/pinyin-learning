@@ -5,8 +5,8 @@ import { useReciter } from './useReciter';
 const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
 
 describe('useReciter', () => {
-  beforeEach(() => vi.useFakeTimers());
-  afterEach(() => vi.useRealTimers());
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.useRealTimers(); });
 
   it('starts in idle with currentIndex -1', () => {
     const { result } = renderHook(() =>
