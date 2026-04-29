@@ -7,11 +7,14 @@ interface Props {
   tokens?: string[];
   isPlaying: boolean;
   durationMs: number;
+  /** 若提供，直接使用该 index 作为高亮位置，跳过基于时长的推进 */
+  forcedIndex?: number;
 }
 
-export function RhymeKaraoke({ text, tokens, isPlaying, durationMs }: Props) {
+export function RhymeKaraoke({ text, tokens, isPlaying, durationMs, forcedIndex }: Props) {
   const list = tokenize(text, tokens);
-  const { currentIndex } = useKaraoke(list.length, isPlaying, durationMs);
+  const { currentIndex: timedIndex } = useKaraoke(list.length, isPlaying, durationMs);
+  const currentIndex = forcedIndex !== undefined ? forcedIndex : timedIndex;
 
   return (
     <div style={containerStyle}>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import type { MnemonicAsset, RhymeData } from '../types';
 import { ttsUrl } from '../api/tts';
+import { pinyinAudioUrl } from '../utils/pinyin';
 import { tokenize } from '../utils/tokenize';
 import { RhymeKaraoke } from './RhymeKaraoke';
 
@@ -10,42 +11,76 @@ interface Props {
   rhyme?: RhymeData;
 }
 
-const FALLBACK_PER_TOKEN_MS = 300;
+const GAP_MS = 120;
+
+/** CJK Unified Ideographs，与 tokenize 保持一致。 */
+function isHanzi(token: string): boolean {
+  if (!token) return false;
+  const code = token.codePointAt(0)!;
+  return code >= 0x4e00 && code <= 0x9fff;
+}
 
 export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [durationMs, setDurationMs] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playIdRef = useRef(0);
 
   useEffect(() => {
     setIsPlaying(false);
-    setDurationMs(0);
+    setActiveIndex(-1);
     audioRef.current?.pause();
     audioRef.current = null;
+    playIdRef.current += 1;
   }, [pinyinId]);
+
+  useEffect(() => () => {
+    audioRef.current?.pause();
+    audioRef.current = null;
+    playIdRef.current += 1;
+  }, []);
 
   if (!mnemonic && !rhyme) return null;
 
-  const playRhyme = () => {
+  const playOnce = (url: string) => new Promise<void>((resolve) => {
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    const done = () => {
+      audio.onended = null;
+      audio.onerror = null;
+      resolve();
+    };
+    audio.onended = done;
+    audio.onerror = done;
+    audio.play().catch(done);
+  });
+
+  const playRhyme = async () => {
     if (!rhyme) return;
-    const speakText = rhyme.audioText ?? rhyme.text;
-    const tokenCount = tokenize(rhyme.text, rhyme.tokens).length;
-    const fallback = FALLBACK_PER_TOKEN_MS * Math.max(1, tokenCount);
+    const tokens = tokenize(rhyme.text, rhyme.tokens);
+    if (tokens.length === 0) return;
 
     audioRef.current?.pause();
-    const audio = new Audio(ttsUrl(speakText));
-    audioRef.current = audio;
-
-    audio.addEventListener('loadedmetadata', () => {
-      const d = isFinite(audio.duration) ? audio.duration * 1000 : fallback;
-      setDurationMs(d > 0 ? d : fallback);
-    });
-    audio.addEventListener('ended', () => setIsPlaying(false));
-    audio.addEventListener('error', () => setIsPlaying(false));
-
-    setDurationMs(fallback);
+    const myId = ++playIdRef.current;
     setIsPlaying(true);
-    void audio.play().catch(() => setIsPlaying(false));
+
+    for (let i = 0; i < tokens.length; i++) {
+      if (playIdRef.current !== myId) return;
+      const tok = tokens[i];
+      setActiveIndex(i);
+      const url = isHanzi(tok)
+        ? ttsUrl(tok)
+        : pinyinAudioUrl(tok);
+      await playOnce(url);
+      if (playIdRef.current !== myId) return;
+      if (i < tokens.length - 1 && GAP_MS > 0) {
+        await new Promise<void>((r) => setTimeout(r, GAP_MS));
+      }
+    }
+    if (playIdRef.current === myId) {
+      setIsPlaying(false);
+      setActiveIndex(-1);
+    }
   };
 
   const speakHint = () => {
@@ -75,7 +110,8 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
             text={rhyme.text}
             tokens={rhyme.tokens}
             isPlaying={isPlaying}
-            durationMs={durationMs}
+            durationMs={0}
+            forcedIndex={activeIndex}
           />
           <button onClick={playRhyme} style={listenButtonStyle}>
             🔊 听口诀
