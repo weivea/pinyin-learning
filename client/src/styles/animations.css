@@ -1,0 +1,30 @@
+@keyframes mnemonic-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mnemonic-shake {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-8deg); }
+  40% { transform: rotate(8deg); }
+  60% { transform: rotate(-4deg); }
+  80% { transform: rotate(4deg); }
+}
+
+.mnemonic-emoji:hover {
+  transform: rotate(-6deg) scale(1.08);
+}
+
+.mnemonic-emoji:active {
+  animation: mnemonic-shake 600ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  section[style*="mnemonic-enter"],
+  .mnemonic-emoji,
+  .mnemonic-emoji:hover,
+  .mnemonic-emoji:active {
+    animation: none !important;
+    transform: none !important;
+  }
+}
