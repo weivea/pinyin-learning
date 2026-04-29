@@ -36,7 +36,7 @@ const initials: PinyinItem[] = [
       { hanzi: '葡', pinyin: 'pú', tone: 2, emoji: '🍇' },
     ],
     mnemonic: { emoji: '🫖', hint: '像小水壶' },
-    rhyme: { text: '泼水泼水 p p p' } },
+    rhyme: { text: '河水哗哗泼 p p p' } },
   { id: 'm', display: 'm', category: 'initial', hasTones: false, audioText: '摸',
     examples: [
       { hanzi: '妈', pinyin: 'mā', tone: 1, emoji: '👩' },
@@ -54,7 +54,7 @@ const initials: PinyinItem[] = [
       { hanzi: '房', pinyin: 'fáng', tone: 2, emoji: '🏠' },
     ],
     mnemonic: { emoji: '🦯', hint: '像拐杖' },
-    rhyme: { text: '老爷爷拐杖 f f f' } },
+    rhyme: { text: '呼呼吹大风 f f f' } },
   { id: 'd', display: 'd', category: 'initial', hasTones: false, audioText: '得',
     examples: [
       { hanzi: '弟', pinyin: 'dì', tone: 4, emoji: '👦' },
@@ -63,7 +63,7 @@ const initials: PinyinItem[] = [
       { hanzi: '豆', pinyin: 'dòu', tone: 4, emoji: '🫘' },
     ],
     mnemonic: { emoji: '🐎', hint: '像小马' },
-    rhyme: { text: '小马跑 d d d' } },
+    rhyme: { text: '小马蹄哒哒 d d d' } },
   { id: 't', display: 't', category: 'initial', hasTones: false, audioText: '特',
     examples: [
       { hanzi: '兔', pinyin: 'tù', tone: 4, emoji: '🐰' },
@@ -72,7 +72,7 @@ const initials: PinyinItem[] = [
       { hanzi: '腿', pinyin: 'tuǐ', tone: 3, emoji: '🦵' },
     ],
     mnemonic: { emoji: '☂️', hint: '像伞把' },
-    rhyme: { text: '伞把伞把 t t t' } },
+    rhyme: { text: '兔子蹦蹦跳 t t t' } },
   { id: 'n', display: 'n', category: 'initial', hasTones: false, audioText: '呢',
     examples: [
       { hanzi: '牛', pinyin: 'niú', tone: 2, emoji: '🐮' },
@@ -81,7 +81,7 @@ const initials: PinyinItem[] = [
       { hanzi: '泥', pinyin: 'ní', tone: 2, emoji: '🪨' },
     ],
     mnemonic: { emoji: '🚪', hint: '像一扇门' },
-    rhyme: { text: '一个门洞 n n n' } },
+    rhyme: { text: '宝宝喝牛奶 n n n' } },
   { id: 'l', display: 'l', category: 'initial', hasTones: false, audioText: '了',
     examples: [
       { hanzi: '老', pinyin: 'lǎo', tone: 3, emoji: '👴' },
@@ -90,7 +90,7 @@ const initials: PinyinItem[] = [
       { hanzi: '梨', pinyin: 'lí', tone: 2, emoji: '🍐' },
     ],
     mnemonic: { emoji: '🥢', hint: '像小棍' },
-    rhyme: { text: '一根小棍 l l l' } },
+    rhyme: { text: '妈妈把手拉 l l l' } },
   { id: 'g', display: 'g', category: 'initial', hasTones: false, audioText: '哥',
     examples: [
       { hanzi: '狗', pinyin: 'gǒu', tone: 3, emoji: '🐶' },
@@ -99,7 +99,7 @@ const initials: PinyinItem[] = [
       { hanzi: '瓜', pinyin: 'guā', tone: 1, emoji: '🍉' },
     ],
     mnemonic: { emoji: '🕊️', hint: '像鸽子' },
-    rhyme: { text: '鸽子叫 g g g' } },
+    rhyme: { text: '公鸡咕咕咕 g g g' } },
   { id: 'k', display: 'k', category: 'initial', hasTones: false, audioText: '科',
     examples: [
       { hanzi: '看', pinyin: 'kàn', tone: 4, emoji: '👀' },
@@ -108,7 +108,7 @@ const initials: PinyinItem[] = [
       { hanzi: '裤', pinyin: 'kù', tone: 4, emoji: '👖' },
     ],
     mnemonic: { emoji: '🐦', hint: '像小鸟蹲' },
-    rhyme: { text: '小鸟蹲枝 k k k' } },
+    rhyme: { text: '妈妈说快快 k k k' } },
   { id: 'h', display: 'h', category: 'initial', hasTones: false, audioText: '喝',
     examples: [
       { hanzi: '花', pinyin: 'huā', tone: 1, emoji: '🌸' },
@@ -117,7 +117,7 @@ const initials: PinyinItem[] = [
       { hanzi: '猴', pinyin: 'hóu', tone: 2, emoji: '🐵' },
     ],
     mnemonic: { emoji: '🪑', hint: '像椅子' },
-    rhyme: { text: '椅子椅子 h h h' } },
+    rhyme: { text: '口渴笑哈哈 h h h' } },
   { id: 'j', display: 'j', category: 'initial', hasTones: false, audioText: '机',
     examples: [
       { hanzi: '鸡', pinyin: 'jī', tone: 1, emoji: '🐔' },
@@ -126,7 +126,7 @@ const initials: PinyinItem[] = [
       { hanzi: '剪', pinyin: 'jiǎn', tone: 3, emoji: '✂️' },
     ],
     mnemonic: { emoji: '🏑', hint: '像小球拍' },
-    rhyme: { text: '打球打球 j j j' } },
+    rhyme: { text: '天亮叫公鸡 j j j' } },
   { id: 'q', display: 'q', category: 'initial', hasTones: false, audioText: '七',
     examples: [
       { hanzi: '球', pinyin: 'qiú', tone: 2, emoji: '⚽' },
@@ -144,7 +144,7 @@ const initials: PinyinItem[] = [
       { hanzi: '熊', pinyin: 'xióng', tone: 2, emoji: '🐻' },
     ],
     mnemonic: { emoji: '✂️', hint: '像小剪刀' },
-    rhyme: { text: '剪刀剪刀 x x x' } },
+    rhyme: { text: '小手洗一洗 x x x' } },
   { id: 'zh', display: 'zh', category: 'initial', hasTones: false, audioText: '知',
     examples: [
       { hanzi: '猪', pinyin: 'zhū', tone: 1, emoji: '🐷' },
@@ -153,7 +153,7 @@ const initials: PinyinItem[] = [
       { hanzi: '蜘', pinyin: 'zhī', tone: 1, emoji: '🕷️' },
     ],
     mnemonic: { emoji: '🪑', hint: '像小椅子' },
-    rhyme: { text: '织毛衣 zh zh zh' } },
+    rhyme: { text: '妈妈在家织 zh zh zh' } },
   { id: 'ch', display: 'ch', category: 'initial', hasTones: false, audioText: '吃',
     examples: [
       { hanzi: '车', pinyin: 'chē', tone: 1, emoji: '🚙' },
@@ -180,7 +180,7 @@ const initials: PinyinItem[] = [
       { hanzi: '热', pinyin: 'rè', tone: 4, emoji: '🥵' },
     ],
     mnemonic: { emoji: '☀️', hint: '像太阳出' },
-    rhyme: { text: '太阳出来 r r r' } },
+    rhyme: { text: '太阳真真热 r r r' } },
   { id: 'z', display: 'z', category: 'initial', hasTones: false, audioText: '资',
     examples: [
       { hanzi: '走', pinyin: 'zǒu', tone: 3, emoji: '🚶' },
@@ -198,7 +198,7 @@ const initials: PinyinItem[] = [
       { hanzi: '蚕', pinyin: 'cán', tone: 2, emoji: '🐛' },
     ],
     mnemonic: { emoji: '🪥', hint: '像小刺刷' },
-    rhyme: { text: '刷牙刷牙 c c c' } },
+    rhyme: { text: '拿块布来擦 c c c' } },
   { id: 's', display: 's', category: 'initial', hasTones: false, audioText: '思',
     examples: [
       { hanzi: '伞', pinyin: 'sǎn', tone: 3, emoji: '☂️' },
@@ -207,7 +207,7 @@ const initials: PinyinItem[] = [
       { hanzi: '松', pinyin: 'sōng', tone: 1, emoji: '🌲' },
     ],
     mnemonic: { emoji: '🐍', hint: '像小蛇' },
-    rhyme: { text: '一条小蛇 s s s' } },
+    rhyme: { text: '一张纸来撕 s s s' } },
   { id: 'y', display: 'y', category: 'initial', hasTones: false, audioText: '医',
     examples: [
       { hanzi: '鸭', pinyin: 'yā', tone: 1, emoji: '🦆' },
@@ -216,7 +216,7 @@ const initials: PinyinItem[] = [
       { hanzi: '叶', pinyin: 'yè', tone: 4, emoji: '🍃' },
     ],
     mnemonic: { emoji: '🌳', hint: '像树杈' },
-    rhyme: { text: '树杈树杈 y y y' } },
+    rhyme: { text: '池塘小黄鸭 y y y' } },
   { id: 'w', display: 'w', category: 'initial', hasTones: false, audioText: '屋',
     examples: [
       { hanzi: '蛙', pinyin: 'wā', tone: 1, emoji: '🐸' },
@@ -225,7 +225,7 @@ const initials: PinyinItem[] = [
       { hanzi: '五', pinyin: 'wǔ', tone: 3, emoji: '5️⃣' },
     ],
     mnemonic: { emoji: '🏔️', hint: '像小山峰' },
-    rhyme: { text: '一座山峰 w w w' } },
+    rhyme: { text: '我家有间屋 w w w' } },
 ];
 
 // --- 单韵母 (6) ---
@@ -258,7 +258,7 @@ const simpleFinals: PinyinItem[] = [
       { hanzi: '婆', pinyin: 'pó', tone: 2, emoji: '👵' },
     ],
     mnemonic: { emoji: '🐔', hint: '像鸡蛋圆' },
-    rhyme: { text: '公鸡打鸣 o o o' } },
+    rhyme: { text: '清晨叫公鸡喔 o o o' } },
   { id: 'e', display: 'e', category: 'simple-final', hasTones: true, audioText: '鹅',
     tones: [
       { tone: 1, text: 'ē', audioText: '鹅' },
@@ -272,7 +272,7 @@ const simpleFinals: PinyinItem[] = [
       { hanzi: '蛾', pinyin: 'é', tone: 2, emoji: '🦋' },
     ],
     mnemonic: { emoji: '🦢', hint: '像白鹅游' },
-    rhyme: { text: '白鹅水中 e e e' } },
+    rhyme: { text: '池塘有白鹅 e e e' } },
   { id: 'i', display: 'i', category: 'simple-final', hasTones: true, audioText: '衣',
     tones: [
       { tone: 1, text: 'ī', audioText: '衣' },
@@ -287,7 +287,7 @@ const simpleFinals: PinyinItem[] = [
       { hanzi: '蚁', pinyin: 'yǐ', tone: 3, emoji: '🐜' },
     ],
     mnemonic: { emoji: '🕯️', hint: '像小蜡烛' },
-    rhyme: { text: '蜡烛点亮 i i i' } },
+    rhyme: { text: '小妹妹穿衣 i i i' } },
   { id: 'u', display: 'u', category: 'simple-final', hasTones: true, audioText: '乌',
     tones: [
       { tone: 1, text: 'ū', audioText: '乌' },
@@ -302,7 +302,7 @@ const simpleFinals: PinyinItem[] = [
       { hanzi: '乌', pinyin: 'wū', tone: 1, emoji: '🐦‍⬛' },
     ],
     mnemonic: { emoji: '🥣', hint: '像小碗口' },
-    rhyme: { text: '一只小碗 u u u' } },
+    rhyme: { text: '小猪睡呼呼 u u u' } },
   { id: 'ü', display: 'ü', category: 'simple-final', hasTones: true, audioText: '迂',
     tones: [
       { tone: 1, text: 'ǖ', audioText: '迂' },
@@ -317,7 +317,7 @@ const simpleFinals: PinyinItem[] = [
       { hanzi: '羽', pinyin: 'yǔ', tone: 3, emoji: '🪶' },
     ],
     mnemonic: { emoji: '🐟', hint: '像小鱼吐泡' },
-    rhyme: { text: '小鱼吐泡 ü ü ü', tokens: ['小', '鱼', '吐', '泡', 'ü', 'ü', 'ü'] } },
+    rhyme: { text: '池塘游小鱼 ü ü ü', tokens: ['池', '塘', '游', '小', '鱼', 'ü', 'ü', 'ü'] } },
 ];
 
 // --- 复韵母 (18) ---
@@ -336,7 +336,7 @@ const compoundFinals: PinyinItem[] = [
       { hanzi: '海', pinyin: 'hǎi', tone: 3, emoji: '🌊' },
     ],
     mnemonic: { emoji: '❤️', hint: '想到爱' },
-    rhyme: { text: '爸爸爱我 ai ai ai' } },
+    rhyme: { text: '宝宝我最爱 ai ai ai' } },
   { id: 'ei', display: 'ei', category: 'compound-final', hasTones: true, audioText: '诶',
     tones: [
       { tone: 1, text: 'ēi', audioText: '诶' },
@@ -351,7 +351,7 @@ const compoundFinals: PinyinItem[] = [
       { hanzi: '美', pinyin: 'měi', tone: 3, emoji: '💄' },
     ],
     mnemonic: { emoji: '✋', hint: '想到诶' },
-    rhyme: { text: '你过来呀 ei ei ei' } },
+    rhyme: { text: '哥哥背小妹 ei ei ei' } },
   { id: 'ui', display: 'ui', category: 'compound-final', hasTones: true, audioText: '威',
     tones: [
       { tone: 1, text: 'uī', audioText: '威' },
@@ -396,7 +396,7 @@ const compoundFinals: PinyinItem[] = [
       { hanzi: '藕', pinyin: 'ǒu', tone: 3, emoji: '🥬' },
     ],
     mnemonic: { emoji: '🐶', hint: '想到狗叫' },
-    rhyme: { text: '小狗汪汪 ou ou ou' } },
+    rhyme: { text: '院里小花狗 ou ou ou' } },
   { id: 'iu', display: 'iu', category: 'compound-final', hasTones: true, audioText: '忧',
     tones: [
       { tone: 1, text: 'iū', audioText: '忧' },
@@ -411,7 +411,7 @@ const compoundFinals: PinyinItem[] = [
       { hanzi: '球', pinyin: 'qiú', tone: 2, emoji: '⚽' },
     ],
     mnemonic: { emoji: '🏊', hint: '想到游泳' },
-    rhyme: { text: '游泳游泳 iu iu iu' } },
+    rhyme: { text: '河里我会游 iu iu iu' } },
   { id: 'ie', display: 'ie', category: 'compound-final', hasTones: true, audioText: '耶',
     tones: [
       { tone: 1, text: 'iē', audioText: '耶' },
@@ -441,7 +441,7 @@ const compoundFinals: PinyinItem[] = [
       { hanzi: '鹊', pinyin: 'què', tone: 4, emoji: '🐦' },
     ],
     mnemonic: { emoji: '🌙', hint: '想到月亮' },
-    rhyme: { text: '看见月亮 üe üe üe', tokens: ['看', '见', '月', '亮', 'üe', 'üe', 'üe'] } },
+    rhyme: { text: '抬头看明月 üe üe üe', tokens: ['抬', '头', '看', '明', '月', 'üe', 'üe', 'üe'] } },
   { id: 'er', display: 'er', category: 'compound-final', hasTones: true, audioText: '儿',
     tones: [
       { tone: 1, text: 'ēr', audioText: '儿' },
@@ -456,7 +456,7 @@ const compoundFinals: PinyinItem[] = [
       { hanzi: '饵', pinyin: 'ěr', tone: 3, emoji: '🪱' },
     ],
     mnemonic: { emoji: '👂', hint: '像小耳朵' },
-    rhyme: { text: '一只耳朵 er er er' } },
+    rhyme: { text: '我有两只耳 er er er' } },
   { id: 'an', display: 'an', category: 'compound-final', hasTones: true, audioText: '安',
     tones: [
       { tone: 1, text: 'ān', audioText: '安' },
@@ -516,7 +516,7 @@ const compoundFinals: PinyinItem[] = [
       { hanzi: '门', pinyin: 'mén', tone: 2, emoji: '🚪' },
     ],
     mnemonic: { emoji: '🌸', hint: '想到春' },
-    rhyme: { text: '春天来到 un un un' } },
+    rhyme: { text: '花开早早春 un un un' } },
   { id: 'ün', display: 'ün', category: 'compound-final', hasTones: true, audioText: '晕',
     tones: [
       { tone: 1, text: 'ǖn', audioText: '晕' },
@@ -622,7 +622,7 @@ const wholeSyllables: PinyinItem[] = [
       { hanzi: '池', pinyin: 'chí', tone: 2, emoji: '🏊' },
     ],
     mnemonic: { emoji: '🍚', hint: '想到吃' },
-    rhyme: { text: '我要吃饭 chi chi chi' } },
+    rhyme: { text: '到了中午要吃 chi chi chi' } },
   { id: 'shi', display: 'shi', category: 'whole-syllable', hasTones: true, audioText: '诗',
     tones: [
       { tone: 1, text: 'shī', audioText: '诗' },
@@ -636,7 +636,7 @@ const wholeSyllables: PinyinItem[] = [
       { hanzi: '柿', pinyin: 'shì', tone: 4, emoji: '🍅' },
     ],
     mnemonic: { emoji: '🦁', hint: '想到狮' },
-    rhyme: { text: '一头狮子 shi shi shi' } },
+    rhyme: { text: '草原一头狮 shi shi shi' } },
   { id: 'ri', display: 'ri', category: 'whole-syllable', hasTones: true, audioText: '日',
     tones: [
       { tone: 1, text: 'rī', audioText: '日' },
@@ -707,7 +707,7 @@ const wholeSyllables: PinyinItem[] = [
       { hanzi: '蚁', pinyin: 'yǐ', tone: 3, emoji: '🐜' },
     ],
     mnemonic: { emoji: '1️⃣', hint: '想到一' },
-    rhyme: { text: '一二三 yi yi yi' } },
+    rhyme: { text: '数到三再加一 yi yi yi' } },
   { id: 'wu', display: 'wu', category: 'whole-syllable', hasTones: true, audioText: '乌',
     tones: [
       { tone: 1, text: 'wū', audioText: '乌' },
@@ -721,7 +721,7 @@ const wholeSyllables: PinyinItem[] = [
       { hanzi: '雾', pinyin: 'wù', tone: 4, emoji: '🌫️' },
     ],
     mnemonic: { emoji: '5️⃣', hint: '想到五' },
-    rhyme: { text: '五个手指 wu wu wu' } },
+    rhyme: { text: '伸出手指数到五 wu wu wu' } },
   { id: 'yu', display: 'yu', category: 'whole-syllable', hasTones: true, audioText: '迂',
     tones: [
       { tone: 1, text: 'yū', audioText: '迂' },
@@ -763,7 +763,7 @@ const wholeSyllables: PinyinItem[] = [
       { hanzi: '乐', pinyin: 'yuè', tone: 4, emoji: '🎵' },
     ],
     mnemonic: { emoji: '🌙', hint: '想到月' },
-    rhyme: { text: '弯弯月亮 yue yue yue' } },
+    rhyme: { text: '抬头看明月 yue yue yue' } },
   { id: 'yuan', display: 'yuan', category: 'whole-syllable', hasTones: true, audioText: '冤',
     tones: [
       { tone: 1, text: 'yuān', audioText: '冤' },
@@ -778,7 +778,7 @@ const wholeSyllables: PinyinItem[] = [
       { hanzi: '院', pinyin: 'yuàn', tone: 4, emoji: '🏡' },
     ],
     mnemonic: { emoji: '⭕', hint: '想到圆' },
-    rhyme: { text: '圆圆月亮 yuan yuan yuan' } },
+    rhyme: { text: '中秋月儿圆 yuan yuan yuan' } },
   { id: 'yin', display: 'yin', category: 'whole-syllable', hasTones: true, audioText: '因',
     tones: [
       { tone: 1, text: 'yīn', audioText: '因' },
@@ -792,7 +792,7 @@ const wholeSyllables: PinyinItem[] = [
       { hanzi: '印', pinyin: 'yìn', tone: 4, emoji: '🖋️' },
     ],
     mnemonic: { emoji: '🥈', hint: '想到银' },
-    rhyme: { text: '银光闪闪 yin yin yin' } },
+    rhyme: { text: '月亮像白银 yin yin yin' } },
   { id: 'yun', display: 'yun', category: 'whole-syllable', hasTones: true, audioText: '晕',
     tones: [
       { tone: 1, text: 'yūn', audioText: '晕' },
@@ -820,7 +820,7 @@ const wholeSyllables: PinyinItem[] = [
       { hanzi: '影', pinyin: 'yǐng', tone: 3, emoji: '👤' },
     ],
     mnemonic: { emoji: '🦅', hint: '想到鹰' },
-    rhyme: { text: '老鹰展翅 ying ying ying' } },
+    rhyme: { text: '天上盘旋老鹰 ying ying ying' } },
 ];
 
 // 保留 tonesFor 辅助函数（虽然新版数据未使用）
