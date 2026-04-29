@@ -1,0 +1,9 @@
+# 生成的音频可重跑，不入库
+audio/
+# 打分结果默认不入库，需要时手动 git add
+results/*.csv
+# Python venv
+.venv-*/
+__pycache__/
+# 生成的对比页
+compare.html
