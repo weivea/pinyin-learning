@@ -27,7 +27,9 @@ def make_tts():
 
 
 def synth_wav(tts, text: str, wav_out: Path) -> None:
-    tts.tts_to_file(text=text, file_path=str(wav_out))
+    # Tacotron2-DDC-GST 对单字输入易出现 attention 不收敛、拖音 12s 的失败模式。
+    # 加 "。" 句末标记后 attention 能正常收敛，输出降到 ~0.8s。
+    tts.tts_to_file(text=text + "。", file_path=str(wav_out))
 
 
 def to_mp3(wav: Path, mp3: Path) -> None:
