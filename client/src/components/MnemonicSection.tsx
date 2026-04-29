@@ -127,6 +127,33 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
     return groups;
   };
 
+  /** 检查 URL 是否真实可用（HEAD 200 且 content-length>0）。 */
+  const headOk = async (url: string): Promise<boolean> => {
+    try {
+      const res = await fetch(url, { method: 'HEAD' });
+      if (!res.ok) return false;
+      const len = Number(res.headers.get('content-length') ?? '');
+      return !len || len > 0;
+    } catch {
+      return false;
+    }
+  };
+
+  /** 依次尝试 URLs，第一个 HEAD 成功的就播。 */
+  const playOnceWithFallback = async (
+    urls: string[],
+    playbackRate?: number,
+    trimTailMs = 0,
+  ): Promise<void> => {
+    for (const u of urls) {
+      // eslint-disable-next-line no-await-in-loop
+      if (await headOk(u)) {
+        await playOnce(u, undefined, playbackRate, trimTailMs);
+        return;
+      }
+    }
+  };
+
   const playRhyme = async () => {
     if (!rhyme) return;
     const tokens = tokenize(rhyme.text, rhyme.tokens);
@@ -144,9 +171,11 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
 
       if (group.kind === 'pinyin') {
         setActiveIndex(group.index);
-        await playOnce(
-          pinyinAudioUrl(group.token),
-          undefined,
+        // 部分音节没有无调静态 mp3（如 ri/zhi/chi/shi/zi/ci/si），回退到一声
+        const url = pinyinAudioUrl(group.token);
+        const fallbackUrl = pinyinAudioUrl(group.token, 1);
+        await playOnceWithFallback(
+          [url, fallbackUrl],
           PINYIN_PLAYBACK_RATE,
           PINYIN_TAIL_TRIM_MS,
         );
