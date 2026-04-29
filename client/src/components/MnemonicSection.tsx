@@ -12,9 +12,11 @@ interface Props {
 }
 
 const GAP_MS = 120;
-const PINYIN_GAP_MS = 30;
+const PINYIN_GAP_MS = 0;
 const HANZI_RATE = '-35%';
-const PINYIN_PLAYBACK_RATE = 1.25;
+const PINYIN_PLAYBACK_RATE = 1.4;
+/** 静态拼音 mp3 末尾有空白；提前这么多毫秒切到下一段。 */
+const PINYIN_TAIL_TRIM_MS = 250;
 const FALLBACK_PER_TOKEN_MS = 350;
 
 /** CJK Unified Ideographs，与 tokenize 保持一致。 */
@@ -46,28 +48,50 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
 
   if (!mnemonic && !rhyme) return null;
 
-  /** 播放一段音频；duringMs 回调每帧把 elapsed 时长报给调用方用于推进高亮。 */
+  /** 播放一段音频；duringMs 回调每帧把 elapsed 时长报给调用方用于推进高亮。
+   *  trimTailMs：当剩余时长 ≤ trimTailMs 时提前 resolve（音频继续淡出，
+   *  但调用方可以立即开始下一段，消除尾部空白）。 */
   const playOnce = (
     url: string,
     onProgress?: (elapsedMs: number, totalMs: number) => void,
     playbackRate?: number,
+    trimTailMs = 0,
   ) => new Promise<void>((resolve) => {
     const audio = new Audio(url);
     if (playbackRate && playbackRate > 0) audio.playbackRate = playbackRate;
     audioRef.current = audio;
     let raf = 0;
+    let resolved = false;
     const cleanup = () => {
       audio.onended = null;
       audio.onerror = null;
       audio.onloadedmetadata = null;
+      audio.ontimeupdate = null;
       if (raf) cancelAnimationFrame(raf);
     };
-    const done = () => { cleanup(); resolve(); };
-    audio.onended = done;
-    audio.onerror = done;
+    const finish = () => {
+      if (resolved) return;
+      resolved = true;
+      cleanup();
+      resolve();
+    };
+    audio.onended = finish;
+    audio.onerror = finish;
+    if (trimTailMs > 0) {
+      audio.ontimeupdate = () => {
+        const dur = audio.duration;
+        if (!isFinite(dur) || dur <= 0) return;
+        const remainingMs = (dur - audio.currentTime) * 1000 / (audio.playbackRate || 1);
+        if (remainingMs <= trimTailMs) {
+          try { audio.pause(); } catch { /* ignore */ }
+          finish();
+        }
+      };
+    }
     if (onProgress) {
       const start = performance.now();
       const tick = () => {
+        if (resolved) return;
         const elapsed = performance.now() - start;
         const total = isFinite(audio.duration) && audio.duration > 0
           ? audio.duration * 1000
@@ -77,7 +101,7 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
       };
       raf = requestAnimationFrame(tick);
     }
-    audio.play().catch(done);
+    audio.play().catch(finish);
   });
 
   /** 把 token 列表按 hanzi/非 hanzi 分组：连续中文合并成一段。 */
@@ -120,7 +144,12 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
 
       if (group.kind === 'pinyin') {
         setActiveIndex(group.index);
-        await playOnce(pinyinAudioUrl(group.token), undefined, PINYIN_PLAYBACK_RATE);
+        await playOnce(
+          pinyinAudioUrl(group.token),
+          undefined,
+          PINYIN_PLAYBACK_RATE,
+          PINYIN_TAIL_TRIM_MS,
+        );
       } else {
         // 中文整段连读，按时间窗推进每个字的高亮
         const indices = group.indices;
