@@ -6,8 +6,9 @@ import { RecitationTable, type RecitationGroup } from '../components/RecitationT
 import { RecitationControls, type ReciteScope } from '../components/RecitationControls';
 import { useReciter } from '../hooks/useReciter';
 import { getByCategory } from '../data/pinyin';
-import { pinyinAudioUrl, stripTone } from '../utils/pinyin';
+import { pinyinAudioUrl } from '../utils/pinyin';
 import { ttsUrl } from '../api/tts';
+import { pickAudioForItem } from '../components/pickAudio';
 import type { PinyinItem } from '../types';
 
 const GROUPS_META: { category: RecitationGroup['category']; label: string }[] = [
@@ -17,19 +18,18 @@ const GROUPS_META: { category: RecitationGroup['category']; label: string }[] = 
   { category: 'whole-syllable', label: '整体认读' },
 ];
 
-/** 播放一个 PinyinItem，监听 ended/error；失败 resolve 不抛。 */
+/** 播放一个 PinyinItem。复用 pickAudioForItem 选音，监听 ended/error；失败 resolve 不抛。 */
 function playReciteItem(item: PinyinItem): Promise<void> {
+  const picked = pickAudioForItem(item);
   return new Promise<void>((resolve) => {
-    const base = stripTone(item.id);
-    const url = pinyinAudioUrl(base);
-    const audio = new Audio(url);
     let done = false;
     const finish = () => { if (!done) { done = true; resolve(); } };
-    audio.onended = finish;
-    audio.onerror = () => {
-      // 静态失败 → TTS 兜底（无调单读）
+
+    const fallbackTts = () => {
       try {
-        const tts = new Audio(ttsUrl(item.audioText));
+        const tts = new Audio(
+          ttsUrl(picked.text, picked.tone ? { pinyin: picked.base, tone: picked.tone } : undefined),
+        );
         tts.onended = finish;
         tts.onerror = finish;
         void tts.play().catch(finish);
@@ -37,7 +37,12 @@ function playReciteItem(item: PinyinItem): Promise<void> {
         finish();
       }
     };
-    void audio.play().catch(() => audio.onerror?.(new Event('error') as any));
+
+    const url = pinyinAudioUrl(picked.base, picked.tone);
+    const audio = new Audio(url);
+    audio.onended = finish;
+    audio.onerror = fallbackTts;
+    void audio.play().catch(fallbackTts);
   });
 }
 
