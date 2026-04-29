@@ -12,6 +12,8 @@ interface Props {
 }
 
 const GAP_MS = 120;
+const HANZI_RATE = '-20%';
+const FALLBACK_PER_TOKEN_MS = 350;
 
 /** CJK Unified Ideographs，与 tokenize 保持一致。 */
 function isHanzi(token: string): boolean {
@@ -42,18 +44,60 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
 
   if (!mnemonic && !rhyme) return null;
 
-  const playOnce = (url: string) => new Promise<void>((resolve) => {
+  /** 播放一段音频；duringMs 回调每帧把 elapsed 时长报给调用方用于推进高亮。 */
+  const playOnce = (
+    url: string,
+    onProgress?: (elapsedMs: number, totalMs: number) => void,
+  ) => new Promise<void>((resolve) => {
     const audio = new Audio(url);
     audioRef.current = audio;
-    const done = () => {
+    let raf = 0;
+    const cleanup = () => {
       audio.onended = null;
       audio.onerror = null;
-      resolve();
+      audio.onloadedmetadata = null;
+      if (raf) cancelAnimationFrame(raf);
     };
+    const done = () => { cleanup(); resolve(); };
     audio.onended = done;
     audio.onerror = done;
+    if (onProgress) {
+      const start = performance.now();
+      const tick = () => {
+        const elapsed = performance.now() - start;
+        const total = isFinite(audio.duration) && audio.duration > 0
+          ? audio.duration * 1000
+          : 0;
+        onProgress(elapsed, total);
+        raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    }
     audio.play().catch(done);
   });
+
+  /** 把 token 列表按 hanzi/非 hanzi 分组：连续中文合并成一段。 */
+  type Group = { kind: 'hanzi'; text: string; indices: number[] }
+              | { kind: 'pinyin'; token: string; index: number };
+  const groupTokens = (toks: string[]): Group[] => {
+    const groups: Group[] = [];
+    let buf: { text: string; indices: number[] } | null = null;
+    const flush = () => {
+      if (buf) { groups.push({ kind: 'hanzi', text: buf.text, indices: buf.indices }); buf = null; }
+    };
+    toks.forEach((t, i) => {
+      if (isHanzi(t)) {
+        if (!buf) buf = { text: '', indices: [] };
+        buf.text += t;
+        buf.indices.push(i);
+      } else {
+        flush();
+        groups.push({ kind: 'pinyin', token: t, index: i });
+      }
+    });
+    flush();
+    return groups;
+  };
 
   const playRhyme = async () => {
     if (!rhyme) return;
@@ -64,16 +108,35 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
     const myId = ++playIdRef.current;
     setIsPlaying(true);
 
-    for (let i = 0; i < tokens.length; i++) {
+    const groups = groupTokens(tokens);
+
+    for (let g = 0; g < groups.length; g++) {
       if (playIdRef.current !== myId) return;
-      const tok = tokens[i];
-      setActiveIndex(i);
-      const url = isHanzi(tok)
-        ? ttsUrl(tok)
-        : pinyinAudioUrl(tok);
-      await playOnce(url);
+      const group = groups[g];
+
+      if (group.kind === 'pinyin') {
+        setActiveIndex(group.index);
+        await playOnce(pinyinAudioUrl(group.token));
+      } else {
+        // 中文整段连读，按时间窗推进每个字的高亮
+        const indices = group.indices;
+        const fallbackTotal = FALLBACK_PER_TOKEN_MS * indices.length;
+        setActiveIndex(indices[0]);
+        await playOnce(
+          ttsUrl(group.text, { rate: HANZI_RATE }),
+          (elapsed, total) => {
+            const totalMs = total > 0 ? total : fallbackTotal;
+            const per = totalMs / indices.length;
+            const idx = Math.min(indices.length - 1, Math.floor(elapsed / per));
+            const target = indices[idx];
+            // 直接 set；React 会跳过相同值
+            setActiveIndex(target);
+          },
+        );
+      }
+
       if (playIdRef.current !== myId) return;
-      if (i < tokens.length - 1 && GAP_MS > 0) {
+      if (g < groups.length - 1 && GAP_MS > 0) {
         await new Promise<void>((r) => setTimeout(r, GAP_MS));
       }
     }
