@@ -12,6 +12,7 @@ interface Props {
 }
 
 const GAP_MS = 120;
+const PINYIN_GAP_MS = 30;
 const HANZI_RATE = '-20%';
 const FALLBACK_PER_TOKEN_MS = 350;
 
@@ -136,8 +137,13 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
       }
 
       if (playIdRef.current !== myId) return;
-      if (g < groups.length - 1 && GAP_MS > 0) {
-        await new Promise<void>((r) => setTimeout(r, GAP_MS));
+      if (g < groups.length - 1) {
+        // 相邻拼音字母段之间用更短的间隙，避免 "O ... O ... O" 听感拖沓
+        const next = groups[g + 1];
+        const gap = group.kind === 'pinyin' && next.kind === 'pinyin'
+          ? PINYIN_GAP_MS
+          : GAP_MS;
+        if (gap > 0) await new Promise<void>((r) => setTimeout(r, gap));
       }
     }
     if (playIdRef.current === myId) {
