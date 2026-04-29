@@ -45,3 +45,24 @@ open poc/audio-tts/compare.html
 | sovits 或 coqui 平均分 ≥ 4.0 且比 edge 高 ≥ 0.5 | 进入正式预生成方案（开新 design） |
 | sovits/coqui 都 < edge | POC 否决；转向云童声 TTS |
 | 三家平均分差 < 0.3 | 维持 edge baseline |
+
+## 已知问题
+
+### GPT-SoVITS 未跑通（2026-04-29）
+
+`requirements-sovits.txt` 中声明的 `gpt-sovits-tts` 包在 PyPI 上不存在：
+
+```
+ERROR: Could not find a version that satisfies the requirement gpt-sovits-tts>=0.4
+  (from versions: none)
+ERROR: No matching distribution found for gpt-sovits-tts>=0.4
+```
+
+`pip index versions gpt-sovits-tts` 与 `gpt_sovits` 同样返回 "No matching distribution found"。
+
+替代方案（需后续实施时手工执行）：
+1. `git clone https://github.com/RVC-Boss/GPT-SoVITS` 下载源码。
+2. 按其 README 安装依赖、下载预训练权重。
+3. 把 `gen-sovits.py` 中 `synth_wav()` 替换为对源码 `inference_webui` / `inference_cli` 的本地调用。
+
+本次 POC 目前只能用 edge baseline + coqui（Task 5）做横评，sovits 列在 compare 页中将留空。

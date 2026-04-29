@@ -1,0 +1,7 @@
+# GPT-SoVITS 推理封装。
+# 若该包安装失败，README 中记录改用 git clone https://github.com/RVC-Boss/GPT-SoVITS 的源码方式，
+# 并将下面 generate() 的实现替换为对源码 inference_webui 的本地调用。
+gpt-sovits-tts>=0.4
+torch>=2.0
+torchaudio>=2.0
+soundfile>=0.12
