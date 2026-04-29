@@ -242,7 +242,9 @@ const simpleFinals: PinyinItem[] = [
       { hanzi: '啊', pinyin: 'a', tone: 0, emoji: '😮' },
       { hanzi: '矮', pinyin: 'ǎi', tone: 3, emoji: '🧒' },
       { hanzi: '爱', pinyin: 'ài', tone: 4, emoji: '❤️' },
-    ] },
+    ],
+    mnemonic: { emoji: '👶', hint: '张大嘴巴' },
+    rhyme: { text: '医生检查 a a a' } },
   { id: 'o', display: 'o', category: 'simple-final', hasTones: true, audioText: '喔',
     tones: [
       { tone: 1, text: 'ō', audioText: '喔' },
@@ -254,7 +256,9 @@ const simpleFinals: PinyinItem[] = [
       { hanzi: '哦', pinyin: 'ó', tone: 2, emoji: '💭' },
       { hanzi: '我', pinyin: 'wǒ', tone: 3, emoji: '🙋' },
       { hanzi: '婆', pinyin: 'pó', tone: 2, emoji: '👵' },
-    ] },
+    ],
+    mnemonic: { emoji: '🐔', hint: '像鸡蛋圆' },
+    rhyme: { text: '公鸡打鸣 o o o' } },
   { id: 'e', display: 'e', category: 'simple-final', hasTones: true, audioText: '鹅',
     tones: [
       { tone: 1, text: 'ē', audioText: '鹅' },
@@ -266,7 +270,9 @@ const simpleFinals: PinyinItem[] = [
       { hanzi: '鹅', pinyin: 'é', tone: 2, emoji: '🦢' },
       { hanzi: '饿', pinyin: 'è', tone: 4, emoji: '😋' },
       { hanzi: '蛾', pinyin: 'é', tone: 2, emoji: '🦋' },
-    ] },
+    ],
+    mnemonic: { emoji: '🦢', hint: '像白鹅游' },
+    rhyme: { text: '白鹅水中 e e e' } },
   { id: 'i', display: 'i', category: 'simple-final', hasTones: true, audioText: '衣',
     tones: [
       { tone: 1, text: 'ī', audioText: '衣' },
@@ -279,7 +285,9 @@ const simpleFinals: PinyinItem[] = [
       { hanzi: '一', pinyin: 'yī', tone: 1, emoji: '1️⃣' },
       { hanzi: '椅', pinyin: 'yǐ', tone: 3, emoji: '🪑' },
       { hanzi: '蚁', pinyin: 'yǐ', tone: 3, emoji: '🐜' },
-    ] },
+    ],
+    mnemonic: { emoji: '🕯️', hint: '像小蜡烛' },
+    rhyme: { text: '蜡烛点亮 i i i' } },
   { id: 'u', display: 'u', category: 'simple-final', hasTones: true, audioText: '乌',
     tones: [
       { tone: 1, text: 'ū', audioText: '乌' },
@@ -292,7 +300,9 @@ const simpleFinals: PinyinItem[] = [
       { hanzi: '雾', pinyin: 'wù', tone: 4, emoji: '🌫️' },
       { hanzi: '屋', pinyin: 'wū', tone: 1, emoji: '🏠' },
       { hanzi: '乌', pinyin: 'wū', tone: 1, emoji: '🐦‍⬛' },
-    ] },
+    ],
+    mnemonic: { emoji: '🥣', hint: '像小碗口' },
+    rhyme: { text: '一只小碗 u u u' } },
   { id: 'ü', display: 'ü', category: 'simple-final', hasTones: true, audioText: '迂',
     tones: [
       { tone: 1, text: 'ǖ', audioText: '迂' },
@@ -305,7 +315,9 @@ const simpleFinals: PinyinItem[] = [
       { hanzi: '雨', pinyin: 'yǔ', tone: 3, emoji: '🌧️' },
       { hanzi: '玉', pinyin: 'yù', tone: 4, emoji: '💎' },
       { hanzi: '羽', pinyin: 'yǔ', tone: 3, emoji: '🪶' },
-    ] },
+    ],
+    mnemonic: { emoji: '🐟', hint: '像小鱼吐泡' },
+    rhyme: { text: '小鱼吐泡 ü ü ü', tokens: ['小', '鱼', '吐', '泡', 'ü', 'ü', 'ü'] } },
 ];
 
 // --- 复韵母 (18) ---
