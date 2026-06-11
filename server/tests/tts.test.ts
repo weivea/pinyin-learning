@@ -4,14 +4,14 @@ import express, { Express } from 'express';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { EdgeTtsService, TtsGenerator } from '../src/services/edgeTts.js';
+import { AzureTtsService, TtsGenerator } from '../src/services/azureTts.js';
 import { ttsRouter } from '../src/routes/tts.js';
 
 describe('GET /api/tts', () => {
   let cacheDir: string;
 
-  function buildAppWithGenerator(generator: TtsGenerator): { app: Express; tts: EdgeTtsService } {
-    const tts = new EdgeTtsService({ cacheDir, generator });
+  function buildAppWithGenerator(generator: TtsGenerator): { app: Express; tts: AzureTtsService } {
+    const tts = new AzureTtsService({ cacheDir, generator });
     const app = express();
     app.use('/api/tts', ttsRouter(tts));
     return { app, tts };
