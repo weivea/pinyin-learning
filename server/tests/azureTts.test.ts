@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mkdtempSync, rmSync, existsSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { EdgeTtsService } from '../src/services/edgeTts.js';
+import { AzureTtsService } from '../src/services/azureTts.js';
 
 let cacheDir: string;
 
@@ -14,10 +14,10 @@ afterEach(() => {
   rmSync(cacheDir, { recursive: true, force: true });
 });
 
-describe('EdgeTtsService', () => {
+describe('AzureTtsService', () => {
   it('returns cached file if exists without invoking generator', async () => {
     const generator = vi.fn();
-    const svc = new EdgeTtsService({ cacheDir, generator });
+    const svc = new AzureTtsService({ cacheDir, generator });
     const path = svc.cachePathFor({ text: 'hello' });
     writeFileSync(path, Buffer.from('FAKE_MP3'));
 
@@ -29,7 +29,7 @@ describe('EdgeTtsService', () => {
 
   it('invokes generator and writes file when cache misses', async () => {
     const generator = vi.fn(async () => Buffer.from('GEN_MP3'));
-    const svc = new EdgeTtsService({ cacheDir, generator });
+    const svc = new AzureTtsService({ cacheDir, generator });
 
     const result = await svc.getOrGenerate({ text: 'hi' });
     expect(result.fromCache).toBe(false);
@@ -44,7 +44,7 @@ describe('EdgeTtsService', () => {
       await new Promise(r => setTimeout(r, 30));
       return Buffer.from('X');
     });
-    const svc = new EdgeTtsService({ cacheDir, generator });
+    const svc = new AzureTtsService({ cacheDir, generator });
 
     const [a, b] = await Promise.all([
       svc.getOrGenerate({ text: 'same', voice: 'v' }),
@@ -56,7 +56,7 @@ describe('EdgeTtsService', () => {
 
   it('uses pinyin+tone for cache key (independent of fallback text)', async () => {
     const generator = vi.fn(async () => Buffer.from('X'));
-    const svc = new EdgeTtsService({ cacheDir, generator });
+    const svc = new AzureTtsService({ cacheDir, generator });
 
     const r1 = await svc.getOrGenerate({ text: '妈', pinyin: 'ma', tone: 1 });
     const r2 = await svc.getOrGenerate({ text: '麻麻', pinyin: 'ma', tone: 1 });
@@ -67,7 +67,7 @@ describe('EdgeTtsService', () => {
 
   it('differentiates cache by tone', async () => {
     const generator = vi.fn(async () => Buffer.from('X'));
-    const svc = new EdgeTtsService({ cacheDir, generator });
+    const svc = new AzureTtsService({ cacheDir, generator });
 
     const r1 = await svc.getOrGenerate({ text: '妈', pinyin: 'ma', tone: 1 });
     const r2 = await svc.getOrGenerate({ text: '妈', pinyin: 'ma', tone: 3 });
@@ -78,7 +78,7 @@ describe('EdgeTtsService', () => {
 
   it('passes built SSML to generator when pinyin+tone present', async () => {
     const generator = vi.fn(async () => Buffer.from('X'));
-    const svc = new EdgeTtsService({ cacheDir, generator });
+    const svc = new AzureTtsService({ cacheDir, generator });
 
     await svc.getOrGenerate({ text: '妈', pinyin: 'ma', tone: 2 });
 
@@ -88,7 +88,7 @@ describe('EdgeTtsService', () => {
 
   it('throws and does NOT cache when generator returns empty buffer', async () => {
     const generator = vi.fn(async () => Buffer.alloc(0));
-    const svc = new EdgeTtsService({ cacheDir, generator });
+    const svc = new AzureTtsService({ cacheDir, generator });
 
     await expect(svc.getOrGenerate({ text: '空' })).rejects.toThrow(/empty/i);
     const path = svc.cachePathFor({ text: '空' });
@@ -97,7 +97,7 @@ describe('EdgeTtsService', () => {
 
   it('regenerates when on-disk cache is a stale 0-byte file', async () => {
     const generator = vi.fn(async () => Buffer.from('REAL_MP3'));
-    const svc = new EdgeTtsService({ cacheDir, generator });
+    const svc = new AzureTtsService({ cacheDir, generator });
     const path = svc.cachePathFor({ text: 'recover' });
     writeFileSync(path, Buffer.alloc(0));
 

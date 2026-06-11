@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { EdgeTtsService, TtsRequest } from '../services/edgeTts.js';
+import { AzureTtsService, TtsRequest } from '../services/azureTts.js';
 import { createReadStream } from 'node:fs';
 
 const DEFAULT_VOICE = 'zh-CN-XiaoxiaoNeural';
@@ -11,7 +11,7 @@ function parseTone(raw: unknown): 1 | 2 | 3 | 4 | null {
   return n as 1 | 2 | 3 | 4;
 }
 
-export function ttsRouter(tts: EdgeTtsService): Router {
+export function ttsRouter(tts: AzureTtsService): Router {
   const router = Router();
 
   router.get('/', async (req: Request, res: Response) => {

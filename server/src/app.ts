@@ -5,11 +5,11 @@ import { usersRouter } from './routes/users.js';
 import { progressRouter } from './routes/progress.js';
 import { ttsRouter } from './routes/tts.js';
 import { pinyinAudioRouter } from './routes/pinyinAudio.js';
-import type { EdgeTtsService } from './services/edgeTts.js';
+import type { AzureTtsService } from './services/azureTts.js';
 
 export interface AppDeps {
   db: DB;
-  tts?: EdgeTtsService;
+  tts?: AzureTtsService;
   pinyinAudioDir?: string;
 }
 

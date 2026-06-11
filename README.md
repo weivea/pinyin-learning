@@ -11,6 +11,19 @@ npm run dev
 # 后端 http://localhost:3001
 ```
 
+## 语音合成（TTS backup）
+
+拼音发音优先使用内置静态音频；缺失时回退到 **Azure Speech** 合成（官方 SDK）。
+本地开发需配置 Azure Speech 凭据：
+
+```bash
+cd server
+cp .env.example .env
+# 填入 AZURE_SPEECH_KEY 与 AZURE_SPEECH_ENDPOINT
+```
+
+未配置时服务器仍可启动，但 TTS 接口不可用，前端会回退到内置拼音音频。
+
 ## 测试
 
 ```bash
