@@ -1,15 +1,30 @@
 import { createApp } from './app.js';
 import { createDb } from './db/connection.js';
 import { AzureTtsService, createAzureGenerator } from './services/azureTts.js';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
-// 可选：从工作目录的 .env 读取 Azure Speech 凭据（Node 原生，无需 dotenv）。
-try {
-  process.loadEnvFile(resolve('.env'));
-} catch {
-  // 没有 .env 时忽略，凭据可由真实环境变量提供。
+// 从 cwd 逐级向上查找 .env 并加载（Node 原生，无需 dotenv）。
+// 服务器以 server/ 为 cwd 运行，向上找可同时兼容 server/.env 与仓库根 .env。
+function loadEnvUpwards(): void {
+  let dir = resolve('.');
+  while (true) {
+    const candidate = resolve(dir, '.env');
+    if (existsSync(candidate)) {
+      try {
+        process.loadEnvFile(candidate);
+        console.log(`[server] loaded env from ${candidate}`);
+      } catch {
+        // 文件存在但解析失败时忽略，凭据可由真实环境变量提供。
+      }
+      return;
+    }
+    const parent = dirname(dir);
+    if (parent === dir) return;
+    dir = parent;
+  }
 }
+loadEnvUpwards();
 
 const PORT = Number(process.env.PORT) || 3001;
 const DB_PATH = process.env.DB_PATH || './data/pinyin.db';
