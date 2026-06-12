@@ -13,7 +13,6 @@ interface Props {
 
 const GAP_MS = 120;
 const PINYIN_GAP_MS = 0;
-const HANZI_RATE = '-35%';
 const PINYIN_PLAYBACK_RATE = 1.4;
 /** 静态拼音 mp3 末尾有空白；提前这么多毫秒切到下一段。 */
 const PINYIN_TAIL_TRIM_MS = 250;
