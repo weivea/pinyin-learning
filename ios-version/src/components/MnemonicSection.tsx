@@ -239,8 +239,8 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
 }
 
 const containerStyle: CSSProperties = {
-  marginTop: 24,
-  padding: '20px 16px',
+  marginTop: 'clamp(10px, 1.5vh, 24px)',
+  padding: 'clamp(10px, 1.5vh, 20px) 16px',
   background: '#fffaf0',
   borderRadius: 24,
   border: '2px dashed #ffd166',
@@ -249,11 +249,11 @@ const containerStyle: CSSProperties = {
 
 const mnemonicBlockStyle: CSSProperties = {
   textAlign: 'center',
-  marginBottom: 16,
+  marginBottom: 'clamp(8px, 1.2vh, 16px)',
 };
 
 const emojiButtonStyle: CSSProperties = {
-  fontSize: 80,
+  fontSize: 'clamp(48px, 7vh, 80px)',
   lineHeight: 1,
   background: 'transparent',
   border: 'none',
@@ -263,7 +263,7 @@ const emojiButtonStyle: CSSProperties = {
 };
 
 const hintStyle: CSSProperties = {
-  fontSize: 18,
+  fontSize: 'clamp(15px, 2vh, 18px)',
   color: '#666',
   marginTop: 4,
 };
