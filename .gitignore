@@ -10,6 +10,7 @@ server/data/
 *.mp3
 # keep checked-in pinyin syllable audio assets
 !server/audio/pinyin/*.mp3
+!ios-version/public/audio/pinyin/*.mp3
 
 # env
 .env

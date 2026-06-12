@@ -48,9 +48,9 @@ describe('pinyinAudioFile', () => {
 });
 
 describe('pinyinAudioUrl', () => {
-  it('returns full /api path', () => {
-    expect(pinyinAudioUrl('a', 1)).toBe('/api/audio/pinyin/a1.mp3');
-    expect(pinyinAudioUrl('üe', 3)).toBe('/api/audio/pinyin/ve3.mp3');
-    expect(pinyinAudioUrl('b')).toBe('/api/audio/pinyin/b.mp3');
+  it('returns bundled relative path', () => {
+    expect(pinyinAudioUrl('a', 1)).toBe('audio/pinyin/a1.mp3');
+    expect(pinyinAudioUrl('üe', 3)).toBe('audio/pinyin/ve3.mp3');
+    expect(pinyinAudioUrl('b')).toBe('audio/pinyin/b.mp3');
   });
 });

@@ -29,7 +29,7 @@ export function pinyinAudioFile(base: string, tone?: 0 | 1 | 2 | 3 | 4): string 
   return `${v}.mp3`;
 }
 
-/** 完整的播放 URL（走后端静态路由）。 */
+/** 打包在 App 内的相对路径（webDir 下 audio/pinyin/*.mp3）。 */
 export function pinyinAudioUrl(base: string, tone?: 0 | 1 | 2 | 3 | 4): string {
-  return `/api/audio/pinyin/${pinyinAudioFile(base, tone)}`;
+  return `audio/pinyin/${pinyinAudioFile(base, tone)}`;
 }
