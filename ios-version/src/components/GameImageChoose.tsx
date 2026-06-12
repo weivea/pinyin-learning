@@ -41,19 +41,20 @@ export function GameImageChoose({ onFinish }: Props) {
   const current = questions[index];
   const stars = useMemo(() => starsForScore(correct, questions.length), [correct, questions.length]);
 
-  function pick(option: string) {
+  async function pick(option: string) {
     if (feedback) return;
     const isRight = option === current.answer.pinyin;
     if (isRight) setCorrect(c => c + 1);
     setFeedback(isRight ? 'right' : 'wrong');
-    void speak(isRight ? '答对了' : `再想想，正确答案是 ${current.answer.pinyin}`);
-    setTimeout(() => {
-      setFeedback(null);
-      if (index + 1 >= questions.length) {
-        const final = correct + (isRight ? 1 : 0);
-        onFinish(final, starsForScore(final, questions.length));
-      } else setIndex(i => i + 1);
-    }, 1400);
+    // 等朗读结束再进下一题；同时保证 popup 至少停留 minShowMs。
+    const minShow = new Promise<void>(r => setTimeout(r, 700));
+    const spoken = speak(isRight ? '答对了' : `再想想，正确答案是 ${current.answer.pinyin}`);
+    await Promise.all([minShow, spoken]);
+    setFeedback(null);
+    if (index + 1 >= questions.length) {
+      const final = correct + (isRight ? 1 : 0);
+      onFinish(final, starsForScore(final, questions.length));
+    } else setIndex(i => i + 1);
   }
 
   if (!current) return null;
@@ -73,7 +74,7 @@ export function GameImageChoose({ onFinish }: Props) {
         {current.options.map(opt => (
           <button
             key={opt}
-            onClick={() => pick(opt)}
+            onClick={() => void pick(opt)}
             disabled={!!feedback}
             style={{
               padding: 24, fontSize: 36, fontWeight: 'bold',

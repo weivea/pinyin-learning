@@ -46,18 +46,19 @@ export function GameListenChoose({ onFinish }: Props) {
 
   const stars = useMemo(() => starsForScore(correct, questions.length), [correct, questions.length]);
 
-  function pick(option: PinyinItem) {
+  async function pick(option: PinyinItem) {
     if (feedback) return;
     const isRight = option.id === current.answer.id;
     if (isRight) setCorrect(c => c + 1);
     setFeedback(isRight ? 'right' : 'wrong');
-    // 语音播报结果（答错时带出正确字母）。
-    void speak(isRight ? '答对了' : `再听听看，正确答案是 ${current.answer.display}`);
-    setTimeout(() => {
-      setFeedback(null);
-      if (index + 1 >= questions.length) onFinish(correct + (isRight ? 1 : 0), starsForScore(correct + (isRight ? 1 : 0), questions.length));
-      else setIndex(i => i + 1);
-    }, 1400);
+    // 等朗读真正结束再进下一题；同时保证 popup 至少停留 minShowMs，
+    // 避免语音很短时一闪而过。两者都满足后才推进。
+    const minShow = new Promise<void>(r => setTimeout(r, 700));
+    const spoken = speak(isRight ? '答对了' : `再听听看，正确答案是 ${current.answer.display}`);
+    await Promise.all([minShow, spoken]);
+    setFeedback(null);
+    if (index + 1 >= questions.length) onFinish(correct + (isRight ? 1 : 0), starsForScore(correct + (isRight ? 1 : 0), questions.length));
+    else setIndex(i => i + 1);
   }
 
   if (!current) return null;
@@ -81,7 +82,7 @@ export function GameListenChoose({ onFinish }: Props) {
         {current.options.map(opt => (
           <button
             key={opt.id}
-            onClick={() => pick(opt)}
+            onClick={() => void pick(opt)}
             disabled={!!feedback}
             style={{
               padding: 32, fontSize: 64, fontWeight: 'bold',
