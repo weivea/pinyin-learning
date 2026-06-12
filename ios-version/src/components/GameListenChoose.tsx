@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { PINYIN_DATA } from '../data/pinyin';
 import { useAudio } from '../hooks/useAudio';
+import { speak } from '../audio/speak';
 import { pickN, shuffle, starsForScore } from './gameUtils';
 import { StarRating } from './StarRating';
+import { FeedbackPopup } from './FeedbackPopup';
 import { pickAudioForItem, type PickedAudio } from './pickAudio';
 import type { PinyinItem } from '../types';
 
@@ -49,11 +51,13 @@ export function GameListenChoose({ onFinish }: Props) {
     const isRight = option.id === current.answer.id;
     if (isRight) setCorrect(c => c + 1);
     setFeedback(isRight ? 'right' : 'wrong');
+    // 语音播报结果（答错时带出正确字母）。
+    void speak(isRight ? '答对了' : `再听听看，正确答案是 ${current.answer.display}`);
     setTimeout(() => {
       setFeedback(null);
       if (index + 1 >= questions.length) onFinish(correct + (isRight ? 1 : 0), starsForScore(correct + (isRight ? 1 : 0), questions.length));
       else setIndex(i => i + 1);
-    }, 900);
+    }, 1400);
   }
 
   if (!current) return null;
@@ -90,8 +94,10 @@ export function GameListenChoose({ onFinish }: Props) {
         ))}
       </div>
 
-      {feedback === 'right' && <div style={{ fontSize: 48, marginTop: 16 }}>🎉 答对了！</div>}
-      {feedback === 'wrong' && <div style={{ fontSize: 24, marginTop: 16, color: '#fb8500' }}>差一点，再听听看～ 正确：{current.answer.display}</div>}
+      {feedback === 'right' && <FeedbackPopup kind="right" title="🎉 答对了！" />}
+      {feedback === 'wrong' && (
+        <FeedbackPopup kind="wrong" title="差一点～" subtitle={`正确：${current.answer.display}`} />
+      )}
     </div>
   );
 }

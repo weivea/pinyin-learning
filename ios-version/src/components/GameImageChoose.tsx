@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 import { PINYIN_DATA } from '../data/pinyin';
+import { speak } from '../audio/speak';
 import { pickN, shuffle, starsForScore } from './gameUtils';
 import { EmojiTile } from './EmojiTile';
 import { StarRating } from './StarRating';
+import { FeedbackPopup } from './FeedbackPopup';
 import type { ExampleWord } from '../types';
 
 interface Question {
@@ -44,13 +46,14 @@ export function GameImageChoose({ onFinish }: Props) {
     const isRight = option === current.answer.pinyin;
     if (isRight) setCorrect(c => c + 1);
     setFeedback(isRight ? 'right' : 'wrong');
+    void speak(isRight ? '答对了' : `再想想，正确答案是 ${current.answer.pinyin}`);
     setTimeout(() => {
       setFeedback(null);
       if (index + 1 >= questions.length) {
         const final = correct + (isRight ? 1 : 0);
         onFinish(final, starsForScore(final, questions.length));
       } else setIndex(i => i + 1);
-    }, 900);
+    }, 1400);
   }
 
   if (!current) return null;
@@ -83,8 +86,10 @@ export function GameImageChoose({ onFinish }: Props) {
         ))}
       </div>
 
-      {feedback === 'right' && <div style={{ fontSize: 48, marginTop: 16 }}>🎉 答对了！</div>}
-      {feedback === 'wrong' && <div style={{ fontSize: 24, marginTop: 16, color: '#fb8500' }}>正确答案：{current.answer.pinyin}</div>}
+      {feedback === 'right' && <FeedbackPopup kind="right" title="🎉 答对了！" />}
+      {feedback === 'wrong' && (
+        <FeedbackPopup kind="wrong" title="差一点～" subtitle={`正确答案：${current.answer.pinyin}`} />
+      )}
     </div>
   );
 }
