@@ -1,8 +1,18 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MnemonicSection } from './MnemonicSection';
 
+// Mock speak module
+vi.mock('../audio/speak', () => ({
+  speak: vi.fn().mockResolvedValue(undefined),
+  stopSpeaking: vi.fn().mockResolvedValue(undefined),
+}));
+
 describe('MnemonicSection', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('mnemonic 与 rhyme 均缺失时不渲染', () => {
     const { container } = render(<MnemonicSection pinyinId="b" />);
     expect(container.firstChild).toBeNull();
@@ -44,5 +54,20 @@ describe('MnemonicSection', () => {
     expect(screen.getByText('像小喇叭')).toBeInTheDocument();
     expect(screen.getAllByTestId('rhyme-token')).toHaveLength(6);
     expect(screen.getByRole('button', { name: /听口诀/ })).toBeInTheDocument();
+  });
+
+  it('点击 emoji 按钮会调用 speak(mnemonic.hint)', async () => {
+    const { speak } = await import('../audio/speak');
+    render(
+      <MnemonicSection
+        pinyinId="b"
+        mnemonic={{ emoji: '📻', hint: '像小喇叭' }}
+      />
+    );
+    const btn = screen.getByRole('button', { name: /朗读：像小喇叭/ });
+    fireEvent.click(btn);
+    // give time for async speak call
+    await new Promise<void>(resolve => setTimeout(resolve, 10));
+    expect(speak).toHaveBeenCalledWith('像小喇叭');
   });
 });

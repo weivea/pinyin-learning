@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import type { MnemonicAsset, RhymeData } from '../types';
-import { ttsUrl } from '../api/tts';
+import { speak } from '../audio/speak';
 import { pinyinAudioUrl } from '../utils/pinyin';
 import { tokenize } from '../utils/tokenize';
 import { RhymeKaraoke } from './RhymeKaraoke';
@@ -184,17 +184,17 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
         const indices = group.indices;
         const fallbackTotal = FALLBACK_PER_TOKEN_MS * indices.length;
         setActiveIndex(indices[0]);
-        await playOnce(
-          ttsUrl(group.text, { rate: HANZI_RATE }),
-          (elapsed, total) => {
-            const totalMs = total > 0 ? total : fallbackTotal;
-            const per = totalMs / indices.length;
-            const idx = Math.min(indices.length - 1, Math.floor(elapsed / per));
-            const target = indices[idx];
-            // 直接 set；React 会跳过相同值
-            setActiveIndex(target);
-          },
-        );
+        const startTs = performance.now();
+        let raf = 0;
+        const tick = () => {
+          const elapsed = performance.now() - startTs;
+          const within = Math.min(indices.length - 1, Math.floor(elapsed / FALLBACK_PER_TOKEN_MS));
+          setActiveIndex(indices[within]);
+          if (elapsed < fallbackTotal) raf = requestAnimationFrame(tick);
+        };
+        raf = requestAnimationFrame(tick);
+        await speak(group.text, { rate: 0.65 });
+        cancelAnimationFrame(raf);
       }
 
       if (playIdRef.current !== myId) return;
@@ -213,10 +213,9 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
     }
   };
 
-  const speakHint = () => {
+  const speakHint = async () => {
     if (!mnemonic) return;
-    const audio = new Audio(ttsUrl(mnemonic.hint));
-    void audio.play().catch(() => {});
+    await speak(mnemonic.hint);
   };
 
   return (

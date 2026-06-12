@@ -7,7 +7,7 @@ import { RecitationControls, type ReciteScope } from '../components/RecitationCo
 import { useReciter } from '../hooks/useReciter';
 import { getByCategory } from '../data/pinyin';
 import { pinyinAudioUrl } from '../utils/pinyin';
-import { ttsUrl } from '../api/tts';
+import { speak } from '../audio/speak';
 import { pickAudioForItem } from '../components/pickAudio';
 import type { PinyinItem } from '../types';
 
@@ -25,14 +25,10 @@ function playReciteItem(item: PinyinItem): Promise<void> {
     let done = false;
     const finish = () => { if (!done) { done = true; resolve(); } };
 
-    const fallbackTts = () => {
+    const fallbackTts = async () => {
       try {
-        const tts = new Audio(
-          ttsUrl(picked.text, picked.tone ? { pinyin: picked.base, tone: picked.tone } : undefined),
-        );
-        tts.onended = finish;
-        tts.onerror = finish;
-        void tts.play().catch(finish);
+        await speak(picked.text, { rate: 0.8 });
+        finish();
       } catch {
         finish();
       }
@@ -41,8 +37,12 @@ function playReciteItem(item: PinyinItem): Promise<void> {
     const url = pinyinAudioUrl(picked.base, picked.tone);
     const audio = new Audio(url);
     audio.onended = finish;
-    audio.onerror = fallbackTts;
-    void audio.play().catch(fallbackTts);
+    audio.onerror = () => {
+      void fallbackTts();
+    };
+    void audio.play().catch(() => {
+      void fallbackTts();
+    });
   });
 }
 
