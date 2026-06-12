@@ -1,5 +1,5 @@
-import { apiFetch } from './client';
 import type { PinyinProgress, GameBest, GameType } from '../types';
+import * as store from '../storage/progressStore';
 
 export interface ProgressResponse {
   pinyinProgress: PinyinProgress[];
@@ -7,19 +7,13 @@ export interface ProgressResponse {
 }
 
 export function getProgress(userId: number): Promise<ProgressResponse> {
-  return apiFetch<ProgressResponse>(`/api/progress/${userId}`);
+  return store.getProgress(userId);
 }
 
 export function recordPinyinLearned(userId: number, pinyin: string) {
-  return apiFetch<{ pinyin: string; learnedCount: number }>(`/api/progress/${userId}/pinyin`, {
-    method: 'POST',
-    body: JSON.stringify({ pinyin }),
-  });
+  return store.recordPinyinLearned(userId, pinyin);
 }
 
 export function recordGameScore(userId: number, gameType: GameType, score: number, stars: number) {
-  return apiFetch<{ id: number; gameType: GameType; score: number; stars: number; isNewBest: boolean }>(
-    `/api/progress/${userId}/game`,
-    { method: 'POST', body: JSON.stringify({ gameType, score, stars }) },
-  );
+  return store.recordGameScore(userId, gameType, score, stars);
 }
