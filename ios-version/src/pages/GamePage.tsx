@@ -42,12 +42,12 @@ export function GamePage() {
   }
 
   return (
-    <div>
+    <div className="app-shell">
       <TopBar user={user} totalStars={totalStars} onLogout={logout} />
 
       {phase === 'select' && (
-        <div style={{ maxWidth: 720, margin: '24px auto', padding: 16, display: 'grid', gap: 16 }}>
-          <h2 style={{ fontSize: 28, textAlign: 'center' }}>选个游戏来玩吧 🎮</h2>
+        <div className="page-main" style={{ display: 'grid', gap: 'clamp(10px, 2vh, 16px)', alignContent: 'center', maxWidth: 720 }}>
+          <h2 style={{ fontSize: 'clamp(22px, 3vh, 28px)', textAlign: 'center', margin: 0 }}>选个游戏来玩吧 🎮</h2>
           <GameButton emoji="🎧" label="听音选字母" color="#8ecae6" onClick={() => { setGameType('listen'); setPhase('playing'); }} />
           <GameButton emoji="🖼" label="看图选拼音" color="#fb8500" onClick={() => { setGameType('image'); setPhase('playing'); }} />
           <GameButton emoji="🃏" label="翻牌配对" color="#06d6a0" onClick={() => { setGameType('memory'); setPhase('playing'); }} />
@@ -78,10 +78,10 @@ function GameButton({ emoji, label, color, onClick }: { emoji: string; label: st
   return (
     <button onClick={onClick} style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16,
-      padding: 24, fontSize: 28, borderRadius: 24,
+      padding: 'clamp(14px, 2.4vh, 24px)', fontSize: 'clamp(22px, 3vh, 28px)', borderRadius: 24,
       border: `4px solid ${color}`, background: '#fff', cursor: 'pointer',
     }}>
-      <span style={{ fontSize: 48 }}>{emoji}</span>
+      <span style={{ fontSize: 'clamp(36px, 5vh, 48px)' }}>{emoji}</span>
       <span style={{ fontWeight: 'bold' }}>{label}</span>
     </button>
   );

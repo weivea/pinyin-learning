@@ -20,10 +20,10 @@ export function ProfilePage() {
   if (!user) return null;
 
   return (
-    <div>
+    <div className="app-shell">
       <TopBar user={user} totalStars={totalStars} onLogout={logout} />
-      <div style={{ maxWidth: 960, margin: '24px auto', padding: '0 16px' }}>
-        <h2 style={{ fontSize: 28 }}>已学拼音 ({learnedSet.size} / {PINYIN_DATA.length})</h2>
+      <div className="page-main fit-screen">
+        <h2 style={{ fontSize: 'clamp(22px, 3vh, 28px)', marginTop: 0 }}>已学拼音 ({learnedSet.size} / {PINYIN_DATA.length})</h2>
         <div style={{
           display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))', gap: 8,
         }}>

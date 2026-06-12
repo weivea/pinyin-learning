@@ -32,17 +32,17 @@ export function CardsPage() {
   if (!user) return null;
 
   return (
-    <div>
+    <div className="app-shell">
       <TopBar user={user} totalStars={totalStars} onLogout={logout} />
 
-      <div style={{ maxWidth: 960, margin: '24px auto', padding: '0 16px' }}>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+      <div className="page-main fit-screen">
+        <div style={{ display: 'flex', gap: 8, marginBottom: 'clamp(8px, 1.5vh, 16px)', flexWrap: 'wrap' }}>
           {CATEGORIES.map(c => (
             <button
               key={c.id}
               onClick={() => { setCategory(c.id); setSelectedId(null); }}
               style={{
-                padding: '12px 20px', fontSize: 20, borderRadius: 16,
+                padding: 'clamp(8px, 1.4vh, 12px) clamp(14px, 2vw, 20px)', fontSize: 'clamp(16px, 2.2vh, 20px)', borderRadius: 16,
                 border: category === c.id ? '3px solid #fb8500' : '2px solid #ccc',
                 background: category === c.id ? '#fff8e7' : '#fff', cursor: 'pointer',
               }}

@@ -13,14 +13,15 @@ export function ToneButtons({ tones, basePinyin, onPlay }: Props) {
   const { playPinyin } = useAudio();
   const base = basePinyin ?? stripTone(tones[0]?.text ?? '');
   return (
-    <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
+    <div style={{ display: 'flex', gap: 'clamp(8px, 1.5vw, 16px)', flexWrap: 'wrap', justifyContent: 'center' }}>
       {tones.map(t => (
         <button
           key={t.tone}
           onClick={() => { void playPinyin(base, t.tone); onPlay?.(t); }}
           aria-label={`播放 ${t.text}`}
           style={{
-            fontSize: 56, padding: '16px 28px', minWidth: 96,
+            fontSize: 'clamp(36px, 5vh, 56px)', padding: 'clamp(8px, 1.4vh, 16px) clamp(16px, 2.2vw, 28px)',
+            minWidth: 'clamp(64px, 8vw, 96px)',
             borderRadius: 24, border: '4px solid #ffb703', background: '#fff',
             cursor: 'pointer',
           }}

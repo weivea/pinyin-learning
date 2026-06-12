@@ -77,9 +77,9 @@ export function RecitePage() {
   const highlightId = reciter.currentIndex >= 0 ? reciteItems[reciter.currentIndex]?.id ?? null : null;
 
   return (
-    <div>
+    <div className="app-shell">
       <TopBar user={user} totalStars={totalStars} onLogout={logout} />
-      <div style={{ maxWidth: 960, margin: '24px auto', padding: '0 16px' }}>
+      <div className="page-main fit-screen">
         <RecitationControls
           status={reciter.status}
           scope={scope}

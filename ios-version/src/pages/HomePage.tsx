@@ -10,9 +10,18 @@ export function HomePage() {
   const totalStars = gameScores.reduce((sum, g) => sum + g.bestStars, 0);
 
   return (
-    <div>
+    <div className="app-shell">
       <TopBar user={user} totalStars={totalStars} onLogout={logout} />
-      <div style={{ display: 'grid', gap: 24, padding: 32, maxWidth: 720, margin: '0 auto' }}>
+      <div
+        className="page-main"
+        style={{
+          display: 'grid',
+          gap: 'clamp(12px, 2vh, 24px)',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
+          alignContent: 'center',
+          maxWidth: 720,
+        }}
+      >
         <HomeButton to="/cards" emoji="📚" label="学拼音" color="#8ecae6" />
         <HomeButton to="/game" emoji="🎮" label="玩游戏" color="#fb8500" />
         <HomeButton to="/profile" emoji="🏆" label="我的进度" color="#06d6a0" />
@@ -26,10 +35,10 @@ function HomeButton({ to, emoji, label, color }: { to: string; emoji: string; la
   return (
     <Link to={to} style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16,
-      padding: '32px', fontSize: 36, textDecoration: 'none', color: '#333',
+      padding: 'clamp(16px, 3vh, 32px)', fontSize: 'clamp(26px, 4vh, 36px)', textDecoration: 'none', color: '#333',
       background: '#fff', border: `4px solid ${color}`, borderRadius: 24,
     }}>
-      <span style={{ fontSize: 64 }}>{emoji}</span>
+      <span style={{ fontSize: 'clamp(40px, 7vh, 64px)' }}>{emoji}</span>
       <span style={{ fontWeight: 'bold' }}>{label}</span>
     </Link>
   );

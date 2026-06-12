@@ -1,8 +1,43 @@
 * { box-sizing: border-box; }
-body {
+html, body {
   margin: 0;
+  height: 100%;
+}
+body {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
   background: #fff8e7;
   color: #333;
 }
 button { font-family: inherit; cursor: pointer; }
+
+/* 应用外壳：占满可视高度，顶部 TopBar 固定高度，下面区域可在需要时内部滚动。
+   使用 100dvh 适配移动端动态视口；iOS safe-area 内边距避免被刘海/底部条遮挡。
+   固定高度 + overflow:hidden 让带 .fit-screen 的子区域内部滚动，而非撑破整页。 */
+.app-shell {
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* 页面主体容器：限制最大宽度并居中，纵向间距随视口收缩。
+   overflow-y:auto + min-height:0 让内容超高时在此区域内部滚动（外壳已 overflow:hidden）。 */
+.page-main {
+  flex: 1;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: clamp(8px, 2vh, 24px) 16px calc(clamp(8px, 2vh, 24px) + env(safe-area-inset-bottom));
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 一屏自适应区域：高度吃满剩余空间，内容过多时内部滚动而非整页滚动。
+   （.page-main 已具备滚动能力，此类用于语义标注/未来覆盖。） */
+.fit-screen {
+  min-height: 0;
+}

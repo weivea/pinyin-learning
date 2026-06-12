@@ -18,12 +18,12 @@ export function ExampleWord({ word }: Props) {
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center',
-      padding: 16, borderRadius: 24, background: '#fff', border: '3px solid #8ecae6',
-      gap: 8, minWidth: 120,
+      padding: 'clamp(8px, 1.2vh, 16px)', borderRadius: 20, background: '#fff', border: '3px solid #8ecae6',
+      gap: 'clamp(4px, 0.8vh, 8px)', minWidth: 'clamp(96px, 12vw, 120px)',
     }}>
-      <EmojiTile emoji={word.emoji} size={64} />
-      <div style={{ fontSize: 36, fontWeight: 'bold' }}>{word.hanzi}</div>
-      <div style={{ fontSize: 24, color: '#666' }}>{word.pinyin}</div>
+      <EmojiTile emoji={word.emoji} size={48} />
+      <div style={{ fontSize: 'clamp(26px, 3.4vh, 36px)', fontWeight: 'bold' }}>{word.hanzi}</div>
+      <div style={{ fontSize: 'clamp(18px, 2.2vh, 24px)', color: '#666' }}>{word.pinyin}</div>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         <AudioButton
           text={word.hanzi}
