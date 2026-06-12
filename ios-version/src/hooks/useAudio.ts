@@ -11,11 +11,12 @@ export function useAudio() {
   const seqIdRef = useRef(0);
   const [spellIndex, setSpellIndex] = useState(-1);
 
-  const stopCurrent = () => {
+  const stopCurrent = async () => {
     if (currentRef.current) {
       currentRef.current.pause();
       currentRef.current = null;
     }
+    await stopSpeaking();
   };
 
   const cancelSequence = () => {
@@ -25,7 +26,7 @@ export function useAudio() {
 
   /** 播一段静态音频，等待 ended/error。返回是否成功。 */
   const playOnce = async (url: string): Promise<boolean> => {
-    stopCurrent();
+    await stopCurrent();
     return new Promise<boolean>((resolve) => {
       const audio = new Audio(url);
       currentRef.current = audio;
@@ -44,8 +45,8 @@ export function useAudio() {
 
   const play = useCallback(async (text: string) => {
     cancelSequence();
-    stopCurrent();
-    await speak(text, undefined);
+    await stopCurrent();
+    await speak(text);
   }, []);
 
   /**
@@ -77,7 +78,7 @@ export function useAudio() {
     opts?: { gapMs?: number },
   ): Promise<void> => {
     cancelSequence();
-    stopCurrent();
+    await stopCurrent();
     const myId = ++seqIdRef.current;
     const gap = opts?.gapMs ?? 220;
 

@@ -1,7 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
-// Setup mocks before importing useAudio
 const speakMock = vi.fn().mockResolvedValue(undefined);
 const stopSpeakingMock = vi.fn().mockResolvedValue(undefined);
 
@@ -18,8 +17,9 @@ vi.mock('../utils/pinyin.ts', () => ({
   stripTone: (p: string) => p,
 }));
 
-// Mock Audio globally
-const audioMocks: any[] = [];
+const audioMocks: MockAudio[] = [];
+const failNextBySrc = new Set<string>();
+
 class MockAudio {
   src: string;
   onended: (() => void) | null = null;
@@ -29,23 +29,30 @@ class MockAudio {
     audioMocks.push(this);
   }
   async play() {
-    // Simulate successful play - trigger onended after a tick
-    if (this.onended) {
-      setTimeout(() => this.onended?.(), 0);
+    if (failNextBySrc.has(this.src)) {
+      failNextBySrc.delete(this.src);
+      this.onerror?.();
+      return Promise.reject(new Error('mock audio failure'));
     }
+    queueMicrotask(() => this.onended?.());
     return Promise.resolve();
   }
   pause() {}
 }
-(global as any).Audio = MockAudio;
+(globalThis as any).Audio = MockAudio;
 
 import { useAudio } from './useAudio.js';
 
 describe('useAudio', () => {
   beforeEach(() => {
     audioMocks.length = 0;
+    failNextBySrc.clear();
     speakMock.mockClear();
     stopSpeakingMock.mockClear();
+  });
+
+  afterEach(() => {
+    failNextBySrc.clear();
   });
 
   it('play calls speak with text', async () => {
@@ -53,7 +60,8 @@ describe('useAudio', () => {
     await act(async () => {
       await result.current.play('妈');
     });
-    expect(speakMock).toHaveBeenCalledWith('妈', undefined);
+    expect(speakMock).toHaveBeenCalledWith('妈');
+    expect(stopSpeakingMock).toHaveBeenCalled();
   });
 
   it('playPinyin plays static audio on success', async () => {
@@ -66,6 +74,26 @@ describe('useAudio', () => {
     expect(speakMock).not.toHaveBeenCalled();
   }, { timeout: 10000 });
 
+  it('playPinyin falls back to speak when static audio fails', async () => {
+    const { result } = renderHook(() => useAudio());
+    failNextBySrc.add('audio/pinyin/ma1.mp3');
+    await act(async () => {
+      await result.current.playPinyin('ma', 1, '妈');
+    });
+    expect(speakMock).toHaveBeenCalledWith('妈');
+  }, { timeout: 10000 });
+
+  it('playSequence uses speak fallback for hanzi when static audio fails', async () => {
+    const { result } = renderHook(() => useAudio());
+    failNextBySrc.add('audio/pinyin/ma1.mp3');
+    await act(async () => {
+      await result.current.playSequence([
+        { base: 'ma', tone: 1 as const, hanzi: '妈' },
+      ], { gapMs: 0 });
+    });
+    expect(speakMock).toHaveBeenCalledWith('妈', { rate: 0.8 });
+  }, { timeout: 10000 });
+
   it('playSequence plays multiple steps', async () => {
     const { result } = renderHook(() => useAudio());
     const steps = [
@@ -73,7 +101,7 @@ describe('useAudio', () => {
       { base: 'ma', tone: 0 as const, caption: 'ma' },
     ];
     await act(async () => {
-      await result.current.playSequence(steps, { gapMs: 0 });
+      await result.current.playSequence(steps as any, { gapMs: 0 });
     });
     expect(audioMocks.length).toBe(2);
     expect(audioMocks[0]!.src).toBe('audio/pinyin/ma1.mp3');
