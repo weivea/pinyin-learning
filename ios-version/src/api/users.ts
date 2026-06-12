@@ -1,13 +1,13 @@
-import { apiFetch } from './client';
 import type { User } from '../types';
+import { upsertByNickname, getById } from '../storage/userStore';
 
 export function loginOrCreate(nickname: string, avatar: string): Promise<User> {
-  return apiFetch<User>('/api/users', {
-    method: 'POST',
-    body: JSON.stringify({ nickname, avatar }),
-  });
+  return upsertByNickname(nickname, avatar);
 }
 
 export function getUser(id: number): Promise<User> {
-  return apiFetch<User>(`/api/users/${id}`);
+  return getById(id).then(u => {
+    if (!u) throw new Error('USER_NOT_FOUND');
+    return u;
+  });
 }
