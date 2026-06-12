@@ -48,7 +48,8 @@ export function GameImageChoose({ onFinish }: Props) {
     setFeedback(isRight ? 'right' : 'wrong');
     // 等朗读结束再进下一题；同时保证 popup 至少停留 minShowMs。
     const minShow = new Promise<void>(r => setTimeout(r, 700));
-    const spoken = speak(isRight ? '答对了' : `再想想，正确答案是 ${current.answer.pinyin}`);
+    // 读汉字而非拼音串——TTS 能正确读出汉字发音，拼音串（如 bà）会被读偏。
+    const spoken = speak(isRight ? '答对了' : `再想想，正确答案是 ${current.answer.hanzi}`);
     await Promise.all([minShow, spoken]);
     setFeedback(null);
     if (index + 1 >= questions.length) {

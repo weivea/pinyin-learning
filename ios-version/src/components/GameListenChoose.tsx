@@ -51,11 +51,17 @@ export function GameListenChoose({ onFinish }: Props) {
     const isRight = option.id === current.answer.id;
     if (isRight) setCorrect(c => c + 1);
     setFeedback(isRight ? 'right' : 'wrong');
-    // 等朗读真正结束再进下一题；同时保证 popup 至少停留 minShowMs，
-    // 避免语音很短时一闪而过。两者都满足后才推进。
+    // popup 至少停留 minShowMs，避免一闪而过。
     const minShow = new Promise<void>(r => setTimeout(r, 700));
-    const spoken = speak(isRight ? '答对了' : `再听听看，正确答案是 ${current.answer.display}`);
-    await Promise.all([minShow, spoken]);
+    if (isRight) {
+      await Promise.all([minShow, speak('答对了')]);
+    } else {
+      // 先说提示语，再用真实拼音静态音频示范正确答案。
+      // 不要把拼音字母（如 a/zhi）塞进句子让 TTS 读——会被读成英文字母名。
+      await speak('再听听看，正确答案是');
+      await playPinyin(current.audio.base, current.audio.tone, current.audio.text);
+      await minShow;
+    }
     setFeedback(null);
     if (index + 1 >= questions.length) onFinish(correct + (isRight ? 1 : 0), starsForScore(correct + (isRight ? 1 : 0), questions.length));
     else setIndex(i => i + 1);
