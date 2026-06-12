@@ -64,7 +64,9 @@ export function useAudio() {
     const url = pinyinAudioUrl(base, tone);
     const ok = await playOnce(url);
     if (!ok && fallbackText) {
-      await speak(fallbackText);
+      // 与 web 版一致：phoneme 模式带上 pinyin+声调，让 Azure 读准声调。
+      const phonemeTone = tone && tone >= 1 && tone <= 4 ? (tone as 1 | 2 | 3 | 4) : undefined;
+      await speak(fallbackText, phonemeTone ? { pinyin: base, tone: phonemeTone } : undefined);
     }
   }, []);
 
@@ -91,7 +93,11 @@ export function useAudio() {
       const ok = await playOnce(url);
       if (!ok && step.hanzi) {
         if (seqIdRef.current !== myId) return;
-        await speak(step.hanzi, { rate: 0.8 });
+        // 与 web 版一致：单字朗读放慢 20%，phoneme 带上 pinyin+声调。
+        await speak(step.hanzi, {
+          rate: 0.8,
+          ...(step.tone ? { pinyin: step.base, tone: step.tone } : {}),
+        });
       }
 
       if (seqIdRef.current !== myId) return;

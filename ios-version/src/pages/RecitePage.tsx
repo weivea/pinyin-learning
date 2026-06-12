@@ -27,7 +27,8 @@ function playReciteItem(item: PinyinItem): Promise<void> {
 
     const fallbackTts = async () => {
       try {
-        await speak(picked.text, { rate: 0.8 });
+        // 与 web 版一致：phoneme 模式带上 pinyin+声调（不额外调速）。
+        await speak(picked.text, picked.tone ? { pinyin: picked.base, tone: picked.tone } : undefined);
         finish();
       } catch {
         finish();

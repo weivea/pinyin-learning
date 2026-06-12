@@ -80,7 +80,7 @@ describe('useAudio', () => {
     await act(async () => {
       await result.current.playPinyin('ma', 1, '妈');
     });
-    expect(speakMock).toHaveBeenCalledWith('妈');
+    expect(speakMock).toHaveBeenCalledWith('妈', { pinyin: 'ma', tone: 1 });
   }, { timeout: 10000 });
 
   it('playSequence uses speak fallback for hanzi when static audio fails', async () => {
@@ -91,7 +91,7 @@ describe('useAudio', () => {
         { base: 'ma', tone: 1 as const, hanzi: '妈', caption: 'mā' },
       ], { gapMs: 0 });
     });
-    expect(speakMock).toHaveBeenCalledWith('妈', { rate: 0.8 });
+    expect(speakMock).toHaveBeenCalledWith('妈', { rate: 0.8, pinyin: 'ma', tone: 1 });
   }, { timeout: 10000 });
 
   it('playSequence plays multiple steps', async () => {

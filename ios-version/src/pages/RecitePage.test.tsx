@@ -145,7 +145,7 @@ describe('RecitePage', () => {
       </BrowserRouter>
     );
     fireEvent.click(screen.getByRole('button', { name: 'mock-cell' }));
-    await waitFor(() => expect(speakMock).toHaveBeenCalledWith('妈', { rate: 0.8 }));
+    await waitFor(() => expect(speakMock).toHaveBeenCalledWith('妈', { pinyin: 'ma', tone: 1 }));
   });
 });
 
