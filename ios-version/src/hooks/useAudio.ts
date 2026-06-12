@@ -1,9 +1,9 @@
 import { useCallback, useRef, useState } from 'react';
-import { ttsUrl } from '../api/tts';
 import { pinyinAudioUrl } from '../utils/pinyin';
+import { speak, stopSpeaking } from '../audio/speak';
 import type { SpellStep } from '../utils/spell';
 
-/** 播放音频。`play(text)` 走 Edge TTS（用于汉字例字）；
+/** 播放音频。`play(text)` 走原生 TTS（汉字例字）；
  *  `playPinyin(base, tone?)` 走静态拼音音节 mp3；
  *  `playSequence(steps)` 串行播放一组拼读段。 */
 export function useAudio() {
@@ -23,51 +23,36 @@ export function useAudio() {
     setSpellIndex(-1);
   };
 
-  const speechFallback = (text: string) => {
-    try {
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'zh-CN';
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(utter);
-    } catch (e2) {
-      console.error('[useAudio] speech fallback failed', e2);
-    }
-  };
-
-  /** 播一段，等待 ended/error。失败不抛，仅记录。 */
-  const playOnce = async (url: string): Promise<void> => {
+  /** 播一段静态音频，等待 ended/error。返回是否成功。 */
+  const playOnce = async (url: string): Promise<boolean> => {
     stopCurrent();
-    return new Promise<void>((resolve) => {
+    return new Promise<boolean>((resolve) => {
       const audio = new Audio(url);
       currentRef.current = audio;
       const cleanup = () => {
         audio.onended = null;
         audio.onerror = null;
       };
-      audio.onended = () => { cleanup(); resolve(); };
-      audio.onerror = () => { cleanup(); resolve(); };
-      audio.play().catch(() => { cleanup(); resolve(); });
+      audio.onended = () => { cleanup(); resolve(true); };
+      audio.onerror = () => { cleanup(); resolve(false); };
+      const playPromise = audio.play();
+      if (playPromise) {
+        playPromise.catch(() => { cleanup(); resolve(false); });
+      }
     });
   };
 
   const play = useCallback(async (text: string) => {
     cancelSequence();
     stopCurrent();
-    try {
-      const audio = new Audio(ttsUrl(text));
-      currentRef.current = audio;
-      await audio.play();
-    } catch (err) {
-      console.warn('[useAudio.play] tts failed, fallback to speechSynthesis', err);
-      speechFallback(text);
-    }
+    await speak(text, undefined);
   }, []);
 
   /**
    * 播放拼音音节静态音频。
    * @param base  去掉声调的拼音（如 "a"、"üe"、"zhi"、"b"）
    * @param tone  1-4 带调；省略或 0 = 无调（声母 / 单读音节）
-   * @param fallbackText  可选：当静态 mp3 缺失时回退用的汉字（走 Edge TTS phoneme 模式）
+   * @param fallbackText  可选：当静态 mp3 失败时回退用的汉字（走原生 TTS）
    */
   const playPinyin = useCallback(async (
     base: string,
@@ -75,28 +60,10 @@ export function useAudio() {
     fallbackText?: string,
   ) => {
     cancelSequence();
-    stopCurrent();
     const url = pinyinAudioUrl(base, tone);
-    try {
-      const head = await fetch(url, { method: 'HEAD' });
-      if (!head.ok) throw new Error(`static audio ${head.status}`);
-      const audio = new Audio(url);
-      currentRef.current = audio;
-      await audio.play();
-    } catch (err) {
-      console.warn(`[useAudio.playPinyin] static failed for ${base}${tone ?? ''}`, err);
-      if (!fallbackText) return;
-      try {
-        const phonemeTone = tone && tone >= 1 && tone <= 4 ? (tone as 1 | 2 | 3 | 4) : undefined;
-        const audio = new Audio(
-          ttsUrl(fallbackText, phonemeTone ? { pinyin: base, tone: phonemeTone } : undefined),
-        );
-        currentRef.current = audio;
-        await audio.play();
-      } catch (err2) {
-        console.warn('[useAudio.playPinyin] tts fallback failed, using speechSynthesis', err2);
-        speechFallback(fallbackText);
-      }
+    const ok = await playOnce(url);
+    if (!ok && fallbackText) {
+      await speak(fallbackText);
     }
   }, []);
 
@@ -119,27 +86,12 @@ export function useAudio() {
       const step = steps[i];
       setSpellIndex(i);
 
-      // 决定 URL：先 HEAD 静态资源，未命中且 step.hanzi 存在则走 TTS phoneme。
-      let url = pinyinAudioUrl(step.base, step.tone);
-      try {
-        const head = await fetch(url, { method: 'HEAD' });
-        // 0 字节的响应也按失败处理（兼容某些代理把 404 转成空 200）。
-        const len = Number(head.headers.get('content-length') ?? '');
-        if (!head.ok || len === 0) throw new Error(`static ${head.status}/${len}`);
-      } catch {
-        if (step.hanzi) {
-          // 拼读 fallback：单字朗读容易显得短促，放慢 20%。
-          url = ttsUrl(step.hanzi, {
-            ...(step.tone ? { pinyin: step.base, tone: step.tone } : {}),
-            rate: '-20%',
-          });
-        } else {
-          // 既无静态资源也没汉字回退：跳过这一段
-          continue;
-        }
+      const url = pinyinAudioUrl(step.base, step.tone);
+      const ok = await playOnce(url);
+      if (!ok && step.hanzi) {
+        if (seqIdRef.current !== myId) return;
+        await speak(step.hanzi, { rate: 0.8 });
       }
-      if (seqIdRef.current !== myId) return;
-      await playOnce(url);
 
       if (seqIdRef.current !== myId) return;
       if (i < steps.length - 1 && gap > 0) {
