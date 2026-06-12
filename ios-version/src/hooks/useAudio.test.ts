@@ -88,7 +88,7 @@ describe('useAudio', () => {
     failNextBySrc.add('audio/pinyin/ma1.mp3');
     await act(async () => {
       await result.current.playSequence([
-        { base: 'ma', tone: 1 as const, hanzi: '妈' },
+        { base: 'ma', tone: 1 as const, hanzi: '妈', caption: 'mā' },
       ], { gapMs: 0 });
     });
     expect(speakMock).toHaveBeenCalledWith('妈', { rate: 0.8 });

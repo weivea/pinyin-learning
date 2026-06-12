@@ -16,3 +16,10 @@ server/data/
 .env
 .env.local
 .env.*.local
+
+# iOS / Capacitor build artifacts
+ios-version/ios/App/Pods/
+ios-version/ios/App/App/public/
+ios-version/ios/App/build/
+ios-version/ios/DerivedData/
+*.xcuserstate
