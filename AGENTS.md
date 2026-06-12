@@ -10,6 +10,7 @@
 - `server/`：Express + TypeScript 后端。
 - `server/src/db/schema.sql`：SQLite 表结构，运行时由 `better-sqlite3` 初始化。
 - `server/audio/pinyin/`：静态拼音 mp3，供 `/api/audio/pinyin/*` 使用。
+- `ios-version/`：基于 Capacitor 的独立离线 iOS 版，本地存储 + 打包音频 + 原生 TTS。与 web 版并存。
 - `docs/superpowers/specs/` 与 `docs/superpowers/plans/`：历史需求、设计和实现计划，可作为功能背景参考。
 - `poc/audio-tts/`：TTS 音频生成/对比实验，不要和主产品逻辑混在一起。
 
