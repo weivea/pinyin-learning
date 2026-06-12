@@ -51,12 +51,14 @@ describe('azureTts', () => {
   });
 
   it('isAzureConfigured is false when env missing', () => {
-    vi.unstubAllEnvs();
+    vi.stubEnv('VITE_AZURE_SPEECH_KEY', '');
+    vi.stubEnv('VITE_AZURE_SPEECH_ENDPOINT', '');
     expect(isAzureConfigured()).toBe(false);
   });
 
   it('throws AZURE_NOT_CONFIGURED when not configured', async () => {
-    vi.unstubAllEnvs();
+    vi.stubEnv('VITE_AZURE_SPEECH_KEY', '');
+    vi.stubEnv('VITE_AZURE_SPEECH_ENDPOINT', '');
     await expect(synthesizeToUrl({ text: '妈' })).rejects.toThrow('AZURE_NOT_CONFIGURED');
   });
 

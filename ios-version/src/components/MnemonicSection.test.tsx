@@ -8,9 +8,31 @@ vi.mock('../audio/speak', () => ({
   stopSpeaking: vi.fn().mockResolvedValue(undefined),
 }));
 
+// 内存版 Audio：play() 后立即 onended（成功），记录所有创建的 src。
+const audioSrcs: string[] = [];
+class MockAudio {
+  src: string;
+  playbackRate = 1;
+  onended: (() => void) | null = null;
+  onerror: (() => void) | null = null;
+  ontimeupdate: (() => void) | null = null;
+  onloadedmetadata: (() => void) | null = null;
+  constructor(src: string) {
+    this.src = src;
+    audioSrcs.push(src);
+  }
+  play() {
+    queueMicrotask(() => this.onended?.());
+    return Promise.resolve();
+  }
+  pause() {}
+}
+(globalThis as unknown as { Audio: unknown }).Audio = MockAudio;
+
 describe('MnemonicSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    audioSrcs.length = 0;
   });
 
   it('mnemonic 与 rhyme 均缺失时不渲染', () => {
@@ -67,5 +89,19 @@ describe('MnemonicSection', () => {
     const btn = screen.getByRole('button', { name: /朗读：像小喇叭/ });
     fireEvent.click(btn);
     await waitFor(() => expect(speak).toHaveBeenCalledWith('像小喇叭'));
+  });
+
+  it('听口诀会播放拼音段静态音频（不被 HEAD 预检拦截）', async () => {
+    render(
+      <MnemonicSection
+        pinyinId="b"
+        rhyme={{ text: '听广播 b b b' }}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: /听口诀/ }));
+    // 拼音段 b 应直接尝试播放打包静态音频，而不是因 HEAD 预检失败被跳过。
+    await waitFor(() =>
+      expect(audioSrcs.some(s => s.includes('audio/pinyin/b'))).toBe(true),
+    );
   });
 });

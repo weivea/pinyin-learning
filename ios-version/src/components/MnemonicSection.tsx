@@ -55,7 +55,7 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
     onProgress?: (elapsedMs: number, totalMs: number) => void,
     playbackRate?: number,
     trimTailMs = 0,
-  ) => new Promise<void>((resolve) => {
+  ) => new Promise<boolean>((resolve) => {
     const audio = new Audio(url);
     if (playbackRate && playbackRate > 0) audio.playbackRate = playbackRate;
     audioRef.current = audio;
@@ -68,14 +68,14 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
       audio.ontimeupdate = null;
       if (raf) cancelAnimationFrame(raf);
     };
-    const finish = () => {
+    const finish = (ok: boolean) => {
       if (resolved) return;
       resolved = true;
       cleanup();
-      resolve();
+      resolve(ok);
     };
-    audio.onended = finish;
-    audio.onerror = finish;
+    audio.onended = () => finish(true);
+    audio.onerror = () => finish(false);
     if (trimTailMs > 0) {
       audio.ontimeupdate = () => {
         const dur = audio.duration;
@@ -83,7 +83,7 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
         const remainingMs = (dur - audio.currentTime) * 1000 / (audio.playbackRate || 1);
         if (remainingMs <= trimTailMs) {
           try { audio.pause(); } catch { /* ignore */ }
-          finish();
+          finish(true);
         }
       };
     }
@@ -100,7 +100,7 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
       };
       raf = requestAnimationFrame(tick);
     }
-    audio.play().catch(finish);
+    audio.play().catch(() => finish(false));
   });
 
   /** 把 token 列表按 hanzi/非 hanzi 分组：连续中文合并成一段。 */
@@ -126,19 +126,9 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
     return groups;
   };
 
-  /** 检查 URL 是否真实可用（HEAD 200 且 content-length>0）。 */
-  const headOk = async (url: string): Promise<boolean> => {
-    try {
-      const res = await fetch(url, { method: 'HEAD' });
-      if (!res.ok) return false;
-      const len = Number(res.headers.get('content-length') ?? '');
-      return !len || len > 0;
-    } catch {
-      return false;
-    }
-  };
-
-  /** 依次尝试 URLs，第一个 HEAD 成功的就播。 */
+  /** 依次乐观尝试 URLs：直接播放，第一个成功（onended/正常结束）就停；
+   *  失败（onerror/play 抛错）再试下一个。不做 HEAD 预检——在 Capacitor
+   *  capacitor:// 下对打包资源 HEAD 不可靠，会误判为不存在而漏播。 */
   const playOnceWithFallback = async (
     urls: string[],
     playbackRate?: number,
@@ -146,10 +136,8 @@ export function MnemonicSection({ pinyinId, mnemonic, rhyme }: Props) {
   ): Promise<void> => {
     for (const u of urls) {
       // eslint-disable-next-line no-await-in-loop
-      if (await headOk(u)) {
-        await playOnce(u, undefined, playbackRate, trimTailMs);
-        return;
-      }
+      const ok = await playOnce(u, undefined, playbackRate, trimTailMs);
+      if (ok) return;
     }
   };
 
