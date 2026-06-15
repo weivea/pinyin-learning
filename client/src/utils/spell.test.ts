@@ -18,6 +18,14 @@ describe('buildSpellSteps', () => {
     ]);
   });
 
+  it('两拼: w + a（蛙）', () => {
+    expect(buildSpellSteps('蛙', 'wā')).toEqual([
+      { base: 'w', caption: 'w' },
+      { base: 'a', caption: 'a' },
+      { base: 'wa', tone: 1, hanzi: '蛙', caption: 'wā 蛙' },
+    ]);
+  });
+
   it('三拼: 声母+介母 i +韵母', () => {
     expect(buildSpellSteps('家', 'jiā')).toEqual([
       { base: 'j', caption: 'j' },

@@ -19,6 +19,9 @@ vi.mock('../utils/pinyin.ts', () => ({
 
 const audioMocks: MockAudio[] = [];
 const failNextBySrc = new Set<string>();
+const fetchMock = vi.fn();
+
+vi.stubGlobal('fetch', fetchMock as any);
 
 class MockAudio {
   src: string;
@@ -49,6 +52,11 @@ describe('useAudio', () => {
     failNextBySrc.clear();
     speakMock.mockClear();
     stopSpeakingMock.mockClear();
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValue({
+      ok: true,
+      headers: new Headers({ 'content-length': '128' }),
+    });
   });
 
   afterEach(() => {
@@ -72,6 +80,9 @@ describe('useAudio', () => {
     expect(audioMocks.length).toBe(1);
     expect(audioMocks[0]!.src).toBe('audio/pinyin/ma1.mp3');
     expect(speakMock).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledWith('audio/pinyin/ma1.mp3', {
+      method: 'HEAD',
+    });
   }, { timeout: 10000 });
 
   it('playPinyin falls back to speak when static audio fails', async () => {
@@ -82,6 +93,40 @@ describe('useAudio', () => {
     });
     expect(speakMock).toHaveBeenCalledWith('妈', { pinyin: 'ma', tone: 1 });
   }, { timeout: 10000 });
+
+  it(
+    'playPinyin normalizes wa phoneme to ua on fallback',
+    async () => {
+      const { result } = renderHook(() => useAudio());
+      fetchMock.mockResolvedValueOnce({ ok: false, headers: new Headers() });
+      await act(async () => {
+        await result.current.playPinyin('wa', 1, '蛙');
+      });
+      expect(speakMock).toHaveBeenCalledWith('蛙', { pinyin: 'ua', tone: 1 });
+    },
+    { timeout: 10000 },
+  );
+
+  it(
+    'playSequence falls back to speak when static file is missing (HEAD 404)',
+    async () => {
+      const { result } = renderHook(() => useAudio());
+      fetchMock.mockResolvedValueOnce({ ok: false, headers: new Headers() });
+      await act(async () => {
+        await result.current.playSequence(
+          [{ base: 'wa', tone: 1 as const, hanzi: '蛙', caption: 'wā 蛙' }],
+          { gapMs: 0 },
+        );
+      });
+      expect(speakMock).toHaveBeenCalledWith('蛙', {
+        rate: 0.8,
+        pinyin: 'ua',
+        tone: 1,
+      });
+      expect(audioMocks.length).toBe(0);
+    },
+    { timeout: 10000 },
+  );
 
   it('playSequence uses speak fallback for hanzi when static audio fails', async () => {
     const { result } = renderHook(() => useAudio());

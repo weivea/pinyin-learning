@@ -13,8 +13,25 @@ export interface SpellStep {
 
 const INITIALS_LONG = ['zh', 'ch', 'sh'];
 const INITIALS_SHORT = [
-  'b', 'p', 'm', 'f', 'd', 't', 'n', 'l',
-  'g', 'k', 'h', 'j', 'q', 'x', 'r', 'z', 'c', 's',
+  'b',
+  'p',
+  'm',
+  'f',
+  'd',
+  't',
+  'n',
+  'l',
+  'g',
+  'k',
+  'h',
+  'j',
+  'q',
+  'x',
+  'r',
+  'z',
+  'c',
+  's',
+  'w',
 ];
 
 const WHOLE_SYLLABLES = new Set([
