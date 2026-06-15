@@ -131,7 +131,7 @@ export function buildSpellSteps(hanzi: string, pinyin: string): SpellStep[] {
       return [
         { base: initial, caption: initial },
         { base: head, caption: head },
-        { base: tail, caption: tail },
+        { base: tail, tone, caption: tail },
         { base: initial + rest, tone, hanzi, caption: finalCaption },
       ];
     }
@@ -140,7 +140,7 @@ export function buildSpellSteps(hanzi: string, pinyin: string): SpellStep[] {
   // 6. 两拼
   return [
     { base: initial, caption: initial },
-    { base: restUe, caption: restUe },
+    { base: restUe, tone, caption: restUe },
     { base: initial + rest, tone, hanzi, caption: finalCaption },
   ];
 }
