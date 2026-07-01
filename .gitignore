@@ -10,8 +10,16 @@ server/data/
 *.mp3
 # keep checked-in pinyin syllable audio assets
 !server/audio/pinyin/*.mp3
+!ios-version/public/audio/pinyin/*.mp3
 
 # env
 .env
 .env.local
 .env.*.local
+
+# iOS / Capacitor build artifacts
+ios-version/ios/App/Pods/
+ios-version/ios/App/App/public/
+ios-version/ios/App/build/
+ios-version/ios/DerivedData/
+*.xcuserstate
