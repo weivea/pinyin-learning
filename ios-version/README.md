@@ -8,6 +8,7 @@ This is a standalone **Capacitor iOS offline app** built for young learners (age
 - **Local storage**: Progress and user data stored in iOS local storage only
 - **Packaged audio**: Static pinyin pronunciation MP3 files included
 - **Native TTS**: Fallback to native iOS speech synthesis when needed
+- **English alphabet**: 26-letter A–Z module — tap 🔊 to hear the letter name (native en-US TTS), open a letter for its intro, stroke-drawing animation, pinyin reading, example word, and a finger-tracing practice canvas
 - **Three games**: Interactive games for pinyin learning
 
 ## Quick Start

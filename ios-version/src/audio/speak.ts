@@ -80,3 +80,22 @@ export async function stopSpeaking(): Promise<void> {
     // ignore
   }
 }
+
+/**
+ * 朗读英文文本（字母名 / 英文单词）。走 iOS 原生 TextToSpeech（en-US），
+ * 不使用 Azure（Azure 配的是中文音色）。失败静默兜底，不抛。
+ */
+export async function speakEnglish(text: string, opts?: { rate?: number }): Promise<void> {
+  const trimmed = text?.trim();
+  if (!trimmed) return;
+  try {
+    await TextToSpeech.stop();
+    await TextToSpeech.speak({
+      text: trimmed,
+      lang: 'en-US',
+      rate: opts?.rate ?? 0.9,
+    });
+  } catch (error) {
+    console.warn('[speakEnglish] native tts failed', error);
+  }
+}

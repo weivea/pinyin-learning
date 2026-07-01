@@ -6,6 +6,8 @@ import { CardsPage } from './pages/CardsPage';
 import { GamePage } from './pages/GamePage';
 import { ProfilePage } from './pages/ProfilePage';
 import { RecitePage } from './pages/RecitePage';
+import { LettersPage } from './pages/LettersPage';
+import { LetterDetailPage } from './pages/LetterDetailPage';
 import { useUser } from './hooks/useUser';
 
 function RequireUser({ children }: { children: JSX.Element }) {
@@ -23,6 +25,8 @@ export default function App() {
       <Route path="/game" element={<RequireUser><GamePage /></RequireUser>} />
       <Route path="/profile" element={<RequireUser><ProfilePage /></RequireUser>} />
       <Route path="/recite" element={<RequireUser><RecitePage /></RequireUser>} />
+      <Route path="/letters" element={<RequireUser><LettersPage /></RequireUser>} />
+      <Route path="/letters/:letter" element={<RequireUser><LetterDetailPage /></RequireUser>} />
     </Routes>
   );
 }

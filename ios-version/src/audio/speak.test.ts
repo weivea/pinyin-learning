@@ -25,7 +25,7 @@ class MockAudio {
 }
 (globalThis as unknown as { Audio: unknown }).Audio = MockAudio;
 
-import { speak, stopSpeaking } from './speak';
+import { speak, stopSpeaking, speakEnglish } from './speak';
 
 describe('speak (native fallback when Azure not configured)', () => {
   beforeEach(() => {
@@ -82,6 +82,34 @@ describe('speak (Azure preferred when configured)', () => {
     expect(speakSpy).toHaveBeenCalledWith(
       expect.objectContaining({ text: '妈', lang: 'zh-CN' }),
     );
+  });
+});
+
+describe('speakEnglish (native en-US)', () => {
+  beforeEach(() => {
+    speakSpy.mockClear();
+    stopSpy.mockClear();
+    synthesizeToUrlMock.mockClear();
+    isAzureConfiguredMock.mockReturnValue(true); // 即便配了 Azure，英文也走原生
+  });
+
+  it('speaks en-US via native TTS and never touches Azure', async () => {
+    await speakEnglish('bee');
+    expect(stopSpy).toHaveBeenCalled();
+    expect(speakSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ text: 'bee', lang: 'en-US' }),
+    );
+    expect(synthesizeToUrlMock).not.toHaveBeenCalled();
+  });
+
+  it('ignores empty text', async () => {
+    await speakEnglish('   ');
+    expect(speakSpy).not.toHaveBeenCalled();
+  });
+
+  it('does not throw when native plugin rejects', async () => {
+    speakSpy.mockRejectedValueOnce(new Error('boom'));
+    await expect(speakEnglish('ay')).resolves.toBeUndefined();
   });
 });
 

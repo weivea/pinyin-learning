@@ -22,6 +22,7 @@ export function HomePage() {
           maxWidth: 720,
         }}
       >
+        <HomeButton to="/letters" emoji="🔤" label="学字母" color="#ffb703" />
         <HomeButton to="/cards" emoji="📚" label="学拼音" color="#8ecae6" />
         <HomeButton to="/game" emoji="🎮" label="玩游戏" color="#fb8500" />
         <HomeButton to="/profile" emoji="🏆" label="我的进度" color="#06d6a0" />

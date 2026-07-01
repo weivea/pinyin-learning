@@ -39,3 +39,12 @@
     transform: none !important;
   }
 }
+
+/* 字母书写轨迹：逐笔中心线书写（由 JS 驱动 stroke-dashoffset）。
+   减少动画时直接显示完整笔画。 */
+@media (prefers-reduced-motion: reduce) {
+  .ink-path {
+    stroke-dashoffset: 0 !important;
+    stroke-dasharray: none !important;
+  }
+}
