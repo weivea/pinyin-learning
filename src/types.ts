@@ -61,3 +61,27 @@ export interface RhymeData {
   /** 可选：TTS 朗读用文本（与 text 不同时启用）。 */
   audioText?: string;
 }
+
+export interface HanziWord {
+  /** 组词，例如 '花朵'。 */
+  word: string;
+  /** 组词拼音（带声调、按词注音），例如 'huā duǒ'。 */
+  pinyin: string;
+}
+
+export interface HanziItem {
+  /** 汉字，例如 '花'。 */
+  char: string;
+  /** 单字拼音（带声调），例如 'huā'。 */
+  pinyin: string;
+  /** 年级：1 或 2。 */
+  grade: number;
+  /** 分组 id：'g1a' | 'g1b' | 'g2a' | 'g2b' | 'extra'。 */
+  volumeId: string;
+  /** 分组名，例如 '一年级上册' / '常用字'。 */
+  volume: string;
+  /** 组词（2-3 个）。 */
+  words: HanziWord[];
+  /** 造句（1-2 句，面向低龄）。 */
+  sentences: string[];
+}

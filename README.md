@@ -9,6 +9,7 @@ A standalone **Capacitor iOS offline app** built for young learners (ages 3–5)
 - **Packaged audio**: static pinyin pronunciation MP3 files are shipped in the bundle
 - **TTS with fallback**: Azure Speech synthesis (baked-in at build time) with native iOS TTS fallback
 - **English alphabet**: 26-letter A–Z module — tap 🔊 to hear the letter name (native en-US TTS), open a letter for its intro, stroke-drawing animation, pinyin reading, example word, and a finger-tracing practice canvas
+- **拼音学汉字 (Learn Chinese characters)**: ~1000 basic characters for pre–grade-3 (统编版 一/二年级 写字表 800 字 + 常用高频字 200)，按册浏览；每字详情页含拼音、朗读、**笔顺动画**、组词、造句。字表数据由 `scripts/gen-hanzi.mjs` 生成（拼音 pinyin-pro、组词 jieba 词频∩教材词汇、造句模板 + `scripts/overrides.mjs` 人工覆盖）；笔顺数据由 `scripts/gen-strokes.mjs` 从 hanzi-writer-data 抽取为离线 `public/hanzi-strokes.json`（约 2.2 MB，含全部 1000 字）
 - **Three games**: interactive games for pinyin learning
 
 ## Quick Start

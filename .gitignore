@@ -20,3 +20,6 @@ ios/App/App/public/
 ios/App/build/
 ios/DerivedData/
 *.xcuserstate
+
+# 汉字生成脚本的原始语料（体积较大，可用脚本重新下载，不入库）
+scripts/data/
