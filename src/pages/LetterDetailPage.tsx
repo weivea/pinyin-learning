@@ -6,6 +6,7 @@ import { useAudio } from '../hooks/useAudio';
 import { TopBar } from '../components/TopBar';
 import { LetterStrokeAnimation } from '../components/LetterStrokeAnimation';
 import { TracingCanvas } from '../components/TracingCanvas';
+import { LetterTracingQuiz } from '../components/LetterTracingQuiz';
 import { getLetter, getAdjacent } from '../data/letters';
 import { markLetterVisited } from '../utils/letterProgress';
 import { speakEnglish } from '../audio/speak';
@@ -92,6 +93,11 @@ export function LetterDetailPage() {
         {/* 仿照描写 */}
         <Section title="🖊️ 照着写一写" color="#bb8fce">
           <TracingCanvas upper={item.letter} lower={item.lower} />
+        </Section>
+
+        {/* 闯关描红 */}
+        <Section title="🏆 闯关描红" color="#06d6a0">
+          <LetterTracingQuiz upper={item.letter} lower={item.lower} />
         </Section>
 
         {/* 上一个 / 下一个 */}
