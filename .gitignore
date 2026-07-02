@@ -3,14 +3,11 @@ dist/
 *.log
 .DS_Store
 
-# server
-server/cache/
-server/data/
+# audio caches / generated files
 *.db
 *.mp3
 # keep checked-in pinyin syllable audio assets
-!server/audio/pinyin/*.mp3
-!ios-version/public/audio/pinyin/*.mp3
+!public/audio/pinyin/*.mp3
 
 # env
 .env
@@ -18,8 +15,8 @@ server/data/
 .env.*.local
 
 # iOS / Capacitor build artifacts
-ios-version/ios/App/Pods/
-ios-version/ios/App/App/public/
-ios-version/ios/App/build/
-ios-version/ios/DerivedData/
+ios/App/Pods/
+ios/App/App/public/
+ios/App/build/
+ios/DerivedData/
 *.xcuserstate
