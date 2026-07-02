@@ -35,7 +35,7 @@ export function NicknameLogin({ onLogin }: Props) {
       borderRadius: 24, background: '#fff',
       boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
     }}>
-      <h1 style={{ textAlign: 'center', fontSize: 36 }}>欢迎来学拼音 🎉</h1>
+      <h1 style={{ textAlign: 'center', fontSize: 36 }}>欢迎来到我爱学习 🎉</h1>
 
       <label style={{ fontSize: 22, display: 'block', marginTop: 24 }}>选个头像：</label>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 12 }}>

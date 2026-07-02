@@ -14,7 +14,7 @@ export function TopBar({ user, totalStars, onLogout }: Props) {
       padding: '12px 24px', background: '#fff', borderBottom: '3px solid #ffd166',
     }}>
       <Link to="/" style={{ fontSize: 24, fontWeight: 'bold', textDecoration: 'none', color: '#333' }}>
-        🐣 拼音学习
+        🐣 我爱学习
       </Link>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 22 }}>
         <span>{user.avatar}</span>
