@@ -1,5 +1,5 @@
 export type PinyinCategory = 'initial' | 'simple-final' | 'compound-final' | 'whole-syllable';
-export type GameType = 'listen' | 'image' | 'memory';
+export type GameType = 'listen' | 'image' | 'memory' | 'hanzi';
 
 export interface ToneVariant {
   tone: 1 | 2 | 3 | 4;

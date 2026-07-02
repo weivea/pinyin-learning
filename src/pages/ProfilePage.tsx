@@ -12,6 +12,7 @@ const GAME_LABELS: Record<string, string> = {
   listen: '🎧 听音选字母',
   image: '🖼 看图选拼音',
   memory: '🃏 翻牌配对',
+  hanzi: '✍️ 跟我写汉字',
 };
 
 export function ProfilePage() {
@@ -67,7 +68,7 @@ export function ProfilePage() {
 
         <h2 style={{ fontSize: 28, marginTop: 32 }}>游戏成绩</h2>
         <div style={{ display: 'grid', gap: 12 }}>
-          {(['listen', 'image', 'memory'] as const).map(gt => {
+          {(['listen', 'image', 'memory', 'hanzi'] as const).map(gt => {
             const score = gameScores.find(g => g.gameType === gt);
             return (
               <div key={gt} style={{

@@ -6,6 +6,7 @@ import { TopBar } from '../components/TopBar';
 import { GameListenChoose } from '../components/GameListenChoose';
 import { GameImageChoose } from '../components/GameImageChoose';
 import { GameMemoryFlip } from '../components/GameMemoryFlip';
+import { GameHanziWrite } from '../components/GameHanziWrite';
 import { StarRating } from '../components/StarRating';
 import type { GameType } from '../types';
 
@@ -51,6 +52,7 @@ export function GamePage() {
           <GameButton emoji="🎧" label="听音选字母" color="#8ecae6" onClick={() => { setGameType('listen'); setPhase('playing'); }} />
           <GameButton emoji="🖼" label="看图选拼音" color="#fb8500" onClick={() => { setGameType('image'); setPhase('playing'); }} />
           <GameButton emoji="🃏" label="翻牌配对" color="#06d6a0" onClick={() => { setGameType('memory'); setPhase('playing'); }} />
+          <GameButton emoji="✍️" label="跟我写汉字" color="#bb8fce" onClick={() => { setGameType('hanzi'); setPhase('playing'); }} />
           <button onClick={() => navigate('/')} style={{ marginTop: 16, padding: 12, fontSize: 18, background: 'transparent', border: '2px solid #ccc', borderRadius: 12, cursor: 'pointer' }}>← 回首页</button>
         </div>
       )}
@@ -58,6 +60,7 @@ export function GamePage() {
       {phase === 'playing' && gameType === 'listen' && <GameListenChoose onFinish={(s, st) => void finish('listen', s, st)} />}
       {phase === 'playing' && gameType === 'image' && <GameImageChoose onFinish={(s, st) => void finish('image', s, st)} />}
       {phase === 'playing' && gameType === 'memory' && <GameMemoryFlip onFinish={(s, st) => void finish('memory', s, st)} />}
+      {phase === 'playing' && gameType === 'hanzi' && <GameHanziWrite userId={user.id} onFinish={(s, st) => void finish('hanzi', s, st)} />}
 
       {phase === 'result' && result && (
         <div style={{ maxWidth: 480, margin: '40px auto', padding: 32, textAlign: 'center', background: '#fff', borderRadius: 24, border: '4px solid #ffd166' }}>
