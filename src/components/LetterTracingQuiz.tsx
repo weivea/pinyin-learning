@@ -106,13 +106,16 @@ export function LetterTracingQuiz({ upper, lower }: Props) {
     setUserPath((prev) => [...prev, p]);
   };
 
-  const onUp = () => {
+  // 结束一笔。grade=true：正常抬手，判分；
+  // grade=false：指针被系统取消（iOS 误判滚动 / 丢失捕获），静默丢弃这一笔，
+  // 不计错、不弹「再描一次」，让孩子直接重画，避免刚起笔就被判失败。
+  const endStroke = (grade: boolean) => {
     if (!drawing.current) return;
     drawing.current = false;
     const user = collected.current;
     collected.current = [];
     setUserPath([]);
-    if (completed) return;
+    if (!grade || completed) return;
 
     const target = sampleStroke(current);
     // 能力缺失（老 WebView / jsdom 无 getTotalLength）：直接放行当前笔。
@@ -138,6 +141,22 @@ export function LetterTracingQuiz({ upper, lower }: Props) {
       }
     }
   };
+
+  const onUp = () => endStroke(true);
+  const onCancel = () => endStroke(false);
+
+  // iOS WKWebView：本组件位于可滚动的 .page-main 内，手指一划动，WebView 可能
+  // 把手势识别成滚动并对 SVG 触发 pointercancel，导致刚起笔的绿色墨迹被打断。
+  // 在描写过程中对原生 touchmove 调用 preventDefault，阻止父级滚动抢占手势。
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const preventScroll = (e: TouchEvent) => {
+      if (drawing.current) e.preventDefault();
+    };
+    svg.addEventListener('touchmove', preventScroll, { passive: false });
+    return () => svg.removeEventListener('touchmove', preventScroll);
+  }, []);
 
   const advance = () => {
     setStrokeMisses(0);
@@ -192,10 +211,14 @@ export function LetterTracingQuiz({ upper, lower }: Props) {
           onPointerDown={onDown}
           onPointerMove={onMove}
           onPointerUp={onUp}
-          onPointerLeave={onUp}
-          onPointerCancel={onUp}
+          onPointerCancel={onCancel}
+          onLostPointerCapture={onCancel}
           style={{ background: '#fffdf7', borderRadius: 20, border: '3px solid #8ecae6', cursor: 'crosshair', touchAction: 'none' }}
         >
+          {/* 所有可视内容都不参与命中测试，SVG 根节点是唯一的指针目标；
+              这样描写途中子节点重绘（当前笔高亮 / 实时墨迹）不会触发
+              pointerout/leave，从而不会打断正在进行的一笔。 */}
+          <g style={{ pointerEvents: 'none' }}>
           {/* 四线格 */}
           <line x1="8" y1="16" x2="92" y2="16" stroke={GRIDLINE} strokeWidth="1" strokeDasharray="3 5" />
           <line x1="8" y1="46" x2="92" y2="46" stroke="#cfe1ee" strokeWidth="1" strokeDasharray="4 4" />
@@ -245,6 +268,7 @@ export function LetterTracingQuiz({ upper, lower }: Props) {
               strokeLinejoin="round"
             />
           )}
+          </g>
         </svg>
 
         {/* 完成庆祝覆盖层 */}
