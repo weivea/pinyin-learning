@@ -1,22 +1,26 @@
 import type { MouseEvent } from 'react';
 import { LETTERS } from '../data/letters';
 import { speakEnglish } from '../audio/speak';
+import { FamiliarityHearts } from './FamiliarityHearts';
 
 interface Props {
   /** 已学过的小写字母集合（用于打勾标记）。 */
   learnedLetters?: Set<string>;
+  /** 每个小写字母的熟悉度（0-5，用 ♥️ 展示）。 */
+  familiarity?: Record<string, number>;
   /** 点击字母卡进入详情。 */
   onSelect: (lower: string) => void;
 }
 
 /** 26 个英文字母表，每个字母显示大小写 + 喇叭按钮朗读字母名。 */
-export function LetterGrid({ learnedLetters, onSelect }: Props) {
+export function LetterGrid({ learnedLetters, familiarity, onSelect }: Props) {
   return (
     <div style={{
       display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 14,
     }}>
       {LETTERS.map(item => {
         const learned = learnedLetters?.has(item.lower);
+        const famLevel = familiarity?.[item.lower] ?? 0;
         const speak = (e: MouseEvent) => {
           e.stopPropagation();
           void speakEnglish(item.spokenName);
@@ -49,6 +53,7 @@ export function LetterGrid({ learnedLetters, onSelect }: Props) {
             >
               🔊
             </button>
+            {famLevel > 0 && <FamiliarityHearts level={famLevel} size={12} />}
           </div>
         );
       })}

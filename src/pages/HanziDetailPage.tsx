@@ -6,6 +6,8 @@ import { useAudio } from '../hooks/useAudio';
 import { TopBar } from '../components/TopBar';
 import { getHanzi, getAdjacentHanzi } from '../data/hanzi';
 import { markHanziVisited } from '../utils/hanziProgress';
+import { useFamiliarity } from '../hooks/useFamiliarity';
+import { FamiliarityEditor } from '../components/FamiliarityHearts';
 import { HanziStrokeAnimation } from '../components/HanziStrokeAnimation';
 import { HanziTracing } from '../components/HanziTracing';
 
@@ -18,6 +20,7 @@ export function HanziDetailPage() {
 
   const decoded = char ? decodeURIComponent(char) : undefined;
   const item = getHanzi(decoded);
+  const [famLevel, setFamLevel] = useFamiliarity('hanzi', user?.id, item?.char);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -48,6 +51,12 @@ export function HanziDetailPage() {
           </button>
           <div style={{ marginTop: 10, fontSize: 14, color: '#aaa' }}>{item.volume}</div>
         </section>
+
+        {/* 熟悉程度（自己调整） */}
+        <Section title="❤️ 熟悉程度" color="#ef476f">
+          <p style={{ fontSize: 16, color: '#888', margin: '0 0 12px' }}>点 ♥️ 记录你有多熟这个字</p>
+          <FamiliarityEditor level={famLevel} onChange={setFamLevel} />
+        </Section>
 
         {/* 笔顺 */}
         <Section title="✏️ 笔顺" color="#ffb703">

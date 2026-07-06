@@ -5,6 +5,8 @@ import { useProgress } from '../hooks/useProgress';
 import { TopBar } from '../components/TopBar';
 import { HANZI_GROUPS } from '../data/hanzi';
 import { readVisitedHanzi } from '../utils/hanziProgress';
+import { readFamiliarityMap } from '../utils/familiarity';
+import { FamiliarityHearts } from '../components/FamiliarityHearts';
 
 const GROUP_COLORS = ['#8ecae6', '#06d6a0', '#ffb703', '#fb8500', '#bb8fce'];
 
@@ -15,6 +17,7 @@ export function HanziPage() {
   const [activeIdx, setActiveIdx] = useState(0);
 
   const visited = useMemo(() => readVisitedHanzi(user?.id), [user?.id]);
+  const familiarity = useMemo(() => readFamiliarityMap('hanzi', user?.id), [user?.id]);
 
   if (!user) return null;
   const totalStars = gameScores.reduce((s, g) => s + g.bestStars, 0);
@@ -77,6 +80,9 @@ export function HanziPage() {
               {visited.has(h.char) && <span style={starBadge}>⭐</span>}
               <span style={{ fontSize: 12, color: '#999', lineHeight: 1 }}>{h.pinyin}</span>
               <span style={{ fontSize: 30, fontWeight: 'bold', lineHeight: 1.1 }}>{h.char}</span>
+              {(familiarity[h.char] ?? 0) > 0 && (
+                <FamiliarityHearts level={familiarity[h.char]} size={10} />
+              )}
             </button>
           ))}
         </div>

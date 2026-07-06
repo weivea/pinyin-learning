@@ -1,10 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useUser } from '../hooks/useUser';
 import { useProgress } from '../hooks/useProgress';
 import { TopBar } from '../components/TopBar';
 import { PinyinGrid } from '../components/PinyinGrid';
 import { PinyinCard } from '../components/PinyinCard';
+import { FamiliarityEditor } from '../components/FamiliarityHearts';
 import { getByCategory } from '../data/pinyin';
+import { readFamiliarityMap, setFamiliarity as saveFamiliarity } from '../utils/familiarity';
 import type { PinyinCategory, PinyinItem } from '../types';
 
 const CATEGORIES: { id: PinyinCategory; label: string }[] = [
@@ -19,6 +21,23 @@ export function CardsPage() {
   const { pinyinProgress, gameScores, learnPinyin } = useProgress(user?.id);
   const [category, setCategory] = useState<PinyinCategory>('initial');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [familiarity, setFamiliarity] = useState<Record<string, number>>(
+    () => readFamiliarityMap('pinyin', user?.id)
+  );
+
+  useEffect(() => {
+    setFamiliarity(readFamiliarityMap('pinyin', user?.id));
+  }, [user?.id]);
+
+  const changeFamiliarity = (id: string, level: number) => {
+    const saved = saveFamiliarity('pinyin', user?.id, id, level);
+    setFamiliarity(prev => {
+      const next = { ...prev };
+      if (saved > 0) next[id] = saved;
+      else delete next[id];
+      return next;
+    });
+  };
 
   const items = useMemo(() => getByCategory(category), [category]);
   const learnedIds = useMemo(
@@ -64,9 +83,20 @@ export function CardsPage() {
               onNext={selectedIndex < items.length - 1 ? () => setSelectedId(items[selectedIndex + 1].id) : undefined}
               onLearned={() => void learnPinyin(selected.id)}
             />
+            <div style={{
+              marginTop: 12, padding: '14px 16px', borderRadius: 20, background: '#fff',
+              border: '3px solid #ef476f', textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 20, color: '#444', marginBottom: 8 }}>❤️ 熟悉程度</div>
+              <p style={{ fontSize: 15, color: '#888', margin: '0 0 10px' }}>点 ♥️ 记录你有多熟这个拼音</p>
+              <FamiliarityEditor
+                level={familiarity[selected.id] ?? 0}
+                onChange={level => changeFamiliarity(selected.id, level)}
+              />
+            </div>
           </>
         ) : (
-          <PinyinGrid items={items} learnedIds={learnedIds} onClick={item => {
+          <PinyinGrid items={items} learnedIds={learnedIds} familiarity={familiarity} onClick={item => {
             setSelectedId(item.id);
             void learnPinyin(item.id);
           }} />

@@ -5,6 +5,7 @@ import { useProgress } from '../hooks/useProgress';
 import { TopBar } from '../components/TopBar';
 import { LetterGrid } from '../components/LetterGrid';
 import { readVisitedLetters } from '../utils/letterProgress';
+import { readFamiliarityMap } from '../utils/familiarity';
 
 export function LettersPage() {
   const { user, logout } = useUser();
@@ -12,6 +13,7 @@ export function LettersPage() {
   const navigate = useNavigate();
 
   const visited = useMemo(() => readVisitedLetters(user?.id), [user?.id]);
+  const familiarity = useMemo(() => readFamiliarityMap('letters', user?.id), [user?.id]);
 
   if (!user) return null;
   const totalStars = gameScores.reduce((s, g) => s + g.bestStars, 0);
@@ -26,7 +28,7 @@ export function LettersPage() {
         <p style={{ textAlign: 'center', fontSize: 16, color: '#888', marginTop: 0, marginBottom: 'clamp(8px, 1.6vh, 16px)' }}>
           点 🔊 听字母名，点字母卡片进入学习
         </p>
-        <LetterGrid learnedLetters={visited} onSelect={lower => navigate(`/letters/${lower}`)} />
+        <LetterGrid learnedLetters={visited} familiarity={familiarity} onSelect={lower => navigate(`/letters/${lower}`)} />
       </div>
     </div>
   );
