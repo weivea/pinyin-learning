@@ -17,11 +17,16 @@ vi.mock('./azureTts', () => ({
 }));
 
 class MockAudio {
+  static autoEnd = true;
+  static instances: MockAudio[] = [];
   onended: (() => void) | null = null;
   onerror: (() => void) | null = null;
-  constructor(public src: string) {}
-  play() { queueMicrotask(() => this.onended?.()); return Promise.resolve(); }
-  pause() {}
+  pause = vi.fn();
+  constructor(public src: string) { MockAudio.instances.push(this); }
+  play() {
+    if (MockAudio.autoEnd) queueMicrotask(() => this.onended?.());
+    return Promise.resolve();
+  }
 }
 (globalThis as unknown as { Audio: unknown }).Audio = MockAudio;
 
@@ -33,6 +38,8 @@ describe('speak (native fallback when Azure not configured)', () => {
     stopSpy.mockClear();
     isAzureConfiguredMock.mockReturnValue(false);
     synthesizeToUrlMock.mockReset();
+    MockAudio.autoEnd = true;
+    MockAudio.instances = [];
   });
 
   it('speaks zh-CN with default rate via native TTS', async () => {
@@ -66,6 +73,8 @@ describe('speak (Azure preferred when configured)', () => {
     isAzureConfiguredMock.mockReturnValue(true);
     synthesizeToUrlMock.mockReset();
     synthesizeToUrlMock.mockResolvedValue('blob:mock');
+    MockAudio.autoEnd = true;
+    MockAudio.instances = [];
   });
 
   it('uses Azure with phoneme params and maps numeric rate to percent', async () => {
@@ -82,6 +91,17 @@ describe('speak (Azure preferred when configured)', () => {
     expect(speakSpy).toHaveBeenCalledWith(
       expect.objectContaining({ text: '妈', lang: 'zh-CN' }),
     );
+  });
+
+  it('stops an active Azure audio element and resolves its playback promise', async () => {
+    MockAudio.autoEnd = false;
+    const playback = speak('一篇短文');
+    await vi.waitFor(() => expect(MockAudio.instances).toHaveLength(1));
+
+    await stopSpeaking();
+
+    await expect(playback).resolves.toBeUndefined();
+    expect(MockAudio.instances[0].pause).toHaveBeenCalled();
   });
 });
 
@@ -112,4 +132,3 @@ describe('speakEnglish (native en-US)', () => {
     await expect(speakEnglish('ay')).resolves.toBeUndefined();
   });
 });
-

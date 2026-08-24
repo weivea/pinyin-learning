@@ -85,3 +85,38 @@ export interface HanziItem {
   /** 造句（1-2 句，面向低龄）。 */
   sentences: string[];
 }
+
+export type ReadingTheme = '童话' | '生活' | '自然' | '校园';
+
+export interface ReadingToken {
+  /** 汉字或标点；汉字始终带有 pinyin。 */
+  text: string;
+  pinyin?: string;
+  /** 是否不在现有 1000 个基础汉字中。 */
+  isNew?: boolean;
+}
+
+export interface ReadingSentence {
+  text: string;
+  tokens: ReadingToken[];
+}
+
+export interface ReadingParagraph {
+  sentences: ReadingSentence[];
+}
+
+export interface ReadingNewCharacter {
+  char: string;
+  pinyin: string;
+}
+
+export interface ReadingPassage {
+  id: string;
+  title: string;
+  titleTokens: ReadingToken[];
+  theme: ReadingTheme;
+  difficulty: number;
+  characterCount: number;
+  newCharacters: ReadingNewCharacter[];
+  paragraphs: ReadingParagraph[];
+}

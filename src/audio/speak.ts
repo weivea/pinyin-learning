@@ -13,6 +13,8 @@ export interface SpeakOptions {
 }
 
 let currentAudio: HTMLAudioElement | null = null;
+let finishCurrentAudio: (() => void) | null = null;
+let speechRequestId = 0;
 
 /** 把原生数字 rate 换算为 Azure SSML 的相对百分比（0.65 → "-35%"，0.8 → "-20%"）。 */
 function rateToPercent(rate?: number): string | undefined {
@@ -20,16 +22,46 @@ function rateToPercent(rate?: number): string | undefined {
   return `${Math.round((rate - 1) * 100)}%`;
 }
 
-/** 播放一个音频 URL，等待 ended/error。失败不抛。 */
-function playUrl(url: string): Promise<void> {
+function stopCurrentAudio(): void {
+  const audio = currentAudio;
+  const finish = finishCurrentAudio;
+  currentAudio = null;
+  finishCurrentAudio = null;
+  if (audio) {
+    try { audio.pause(); } catch { /* ignore */ }
+  }
+  finish?.();
+}
+
+async function stopNativeSpeech(): Promise<void> {
+  try {
+    await TextToSpeech.stop();
+  } catch {
+    // Stopping is best-effort; the next playback path still reports its own failure.
+  }
+}
+
+/** 播放一个音频 URL，等待 ended/error；停止时也会结束等待。 */
+function playUrl(url: string, requestId: number): Promise<void> {
   return new Promise((resolve) => {
+    if (requestId !== speechRequestId) {
+      resolve();
+      return;
+    }
+    stopCurrentAudio();
     const audio = new Audio(url);
     currentAudio = audio;
+    let finished = false;
     const done = () => {
+      if (finished) return;
+      finished = true;
       audio.onended = null;
       audio.onerror = null;
+      if (currentAudio === audio) currentAudio = null;
+      if (finishCurrentAudio === done) finishCurrentAudio = null;
       resolve();
     };
+    finishCurrentAudio = done;
     audio.onended = done;
     audio.onerror = done;
     const p = audio.play();
@@ -42,6 +74,11 @@ function playUrl(url: string): Promise<void> {
  * Azure 未配置 / 合成失败 / 离线时退回 iOS 原生 TextToSpeech。失败静默兜底，不抛。
  */
 export async function speak(text: string, opts?: SpeakOptions): Promise<void> {
+  const requestId = ++speechRequestId;
+  stopCurrentAudio();
+  await stopNativeSpeech();
+  if (requestId !== speechRequestId) return;
+
   if (isAzureConfigured()) {
     try {
       const url = await synthesizeToUrl({
@@ -51,14 +88,16 @@ export async function speak(text: string, opts?: SpeakOptions): Promise<void> {
         voice: opts?.voice,
         rate: rateToPercent(opts?.rate),
       });
-      await playUrl(url);
+      if (requestId !== speechRequestId) return;
+      await playUrl(url, requestId);
       return;
     } catch (error) {
+      if (requestId !== speechRequestId) return;
       console.warn('[speak] azure tts failed, falling back to native', error);
     }
   }
   try {
-    await TextToSpeech.stop();
+    if (requestId !== speechRequestId) return;
     await TextToSpeech.speak({
       text,
       lang: 'zh-CN',
@@ -70,15 +109,9 @@ export async function speak(text: string, opts?: SpeakOptions): Promise<void> {
 }
 
 export async function stopSpeaking(): Promise<void> {
-  if (currentAudio) {
-    try { currentAudio.pause(); } catch { /* ignore */ }
-    currentAudio = null;
-  }
-  try {
-    await TextToSpeech.stop();
-  } catch {
-    // ignore
-  }
+  speechRequestId++;
+  stopCurrentAudio();
+  await stopNativeSpeech();
 }
 
 /**
@@ -88,8 +121,11 @@ export async function stopSpeaking(): Promise<void> {
 export async function speakEnglish(text: string, opts?: { rate?: number }): Promise<void> {
   const trimmed = text?.trim();
   if (!trimmed) return;
+  const requestId = ++speechRequestId;
+  stopCurrentAudio();
   try {
-    await TextToSpeech.stop();
+    await stopNativeSpeech();
+    if (requestId !== speechRequestId) return;
     await TextToSpeech.speak({
       text: trimmed,
       lang: 'en-US',

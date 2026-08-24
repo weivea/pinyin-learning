@@ -6,6 +6,8 @@ import { TopBar } from '../components/TopBar';
 import { PINYIN_DATA } from '../data/pinyin';
 import { HANZI, HANZI_GROUPS } from '../data/hanzi';
 import { readVisitedHanzi } from '../utils/hanziProgress';
+import { READINGS } from '../data/readings';
+import { readVisitedReadings } from '../utils/readingProgress';
 import { StarRating } from '../components/StarRating';
 
 const GAME_LABELS: Record<string, string> = {
@@ -20,6 +22,8 @@ export function ProfilePage() {
   const { pinyinProgress, gameScores } = useProgress(user?.id);
   const learnedSet = useMemo(() => new Set(pinyinProgress.map(p => p.pinyin)), [pinyinProgress]);
   const visitedHanzi = useMemo(() => readVisitedHanzi(user?.id), [user?.id]);
+  const visitedReadings = useMemo(() => readVisitedReadings(user?.id), [user?.id]);
+  const visitedReadingCount = READINGS.filter(reading => visitedReadings.has(reading.id)).length;
   const totalStars = gameScores.reduce((s, g) => s + g.bestStars, 0);
 
   if (!user) return null;
@@ -63,6 +67,18 @@ export function ProfilePage() {
                 </div>
               );
             })}
+          </div>
+        </Link>
+
+        <h2 style={{ fontSize: 'clamp(22px, 3vh, 28px)', marginTop: 32 }}>
+          已读短文 ({visitedReadingCount} / {READINGS.length})
+        </h2>
+        <Link to="/readings" style={{ textDecoration: 'none' }}>
+          <div style={{
+            padding: 16, borderRadius: 16, background: '#fff', border: '2px solid #74c69d', color: '#333',
+          }}>
+            <div style={{ fontSize: 18, fontWeight: 'bold' }}>📗 短文阅读</div>
+            <div style={{ marginTop: 5, color: '#777' }}>已打开 {visitedReadingCount} 篇短文</div>
           </div>
         </Link>
 

@@ -10,6 +10,8 @@ import { LettersPage } from './pages/LettersPage';
 import { LetterDetailPage } from './pages/LetterDetailPage';
 import { HanziPage } from './pages/HanziPage';
 import { HanziDetailPage } from './pages/HanziDetailPage';
+import { ReadingListPage } from './pages/ReadingListPage';
+import { ReadingDetailPage } from './pages/ReadingDetailPage';
 import { useUser } from './hooks/useUser';
 
 function RequireUser({ children }: { children: JSX.Element }) {
@@ -31,6 +33,8 @@ export default function App() {
       <Route path="/letters/:letter" element={<RequireUser><LetterDetailPage /></RequireUser>} />
       <Route path="/hanzi" element={<RequireUser><HanziPage /></RequireUser>} />
       <Route path="/hanzi/:char" element={<RequireUser><HanziDetailPage /></RequireUser>} />
+      <Route path="/readings" element={<RequireUser><ReadingListPage /></RequireUser>} />
+      <Route path="/readings/:readingId" element={<RequireUser><ReadingDetailPage /></RequireUser>} />
     </Routes>
   );
 }
