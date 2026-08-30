@@ -10,6 +10,7 @@ A standalone **Capacitor iOS offline app** built for young learners (ages 3–5)
 - **TTS with fallback**: Azure Speech synthesis (baked-in at build time) with native iOS TTS fallback
 - **English alphabet**: 26-letter A–Z module — tap 🔊 to hear the letter name (native en-US TTS), open a letter for its intro, stroke-drawing animation, pinyin reading, example word, and a finger-tracing practice canvas
 - **拼音学汉字 (Learn Chinese characters)**: ~1000 basic characters for pre–grade-3 (统编版 一/二年级 写字表 800 字 + 常用高频字 200)，按册浏览；每字详情页含拼音、朗读、**笔顺动画**、组词、造句。字表数据由 `scripts/gen-hanzi.mjs` 生成（拼音 pinyin-pro、组词 jieba 词频∩教材词汇、造句模板 + `scripts/overrides.mjs` 人工覆盖）；笔顺数据由 `scripts/gen-strokes.mjs` 从 hanzi-writer-data 抽取为离线 `public/hanzi-strokes.json`（约 2.2 MB，含全部 1000 字）
+- **短文阅读**: 20 篇由易到难的原创低龄短文，每篇 80–120 字；所有汉字逐字注音，每篇最多 5 个生字并可点开查看，支持按句高亮朗读、暂停和继续
 - **Three games**: interactive games for pinyin learning
 
 ## Quick Start
@@ -64,9 +65,9 @@ Then in Xcode set a valid **Bundle ID** matching your Apple team and configure t
 │   ├── api/              # Local storage adapters (users, progress)
 │   ├── audio/            # Azure TTS client + SSML builder
 │   ├── components/       # UI components
-│   ├── data/             # Pinyin & letter datasets
+│   ├── data/             # Pinyin, Hanzi, letter & annotated reading datasets
 │   ├── hooks/            # Custom hooks (useProgress, useUser, useAudio, useReciter, useKaraoke)
-│   ├── pages/            # Route pages (login, cards, recite, games, letters, profile)
+│   ├── pages/            # Route pages (login, cards, readings, recite, games, letters, profile)
 │   ├── storage/          # Local persistence layer (Capacitor Preferences)
 │   ├── styles/           # Global CSS and animations
 │   ├── utils/            # Pure logic (pinyin, spell, tokenize, letterProgress)
