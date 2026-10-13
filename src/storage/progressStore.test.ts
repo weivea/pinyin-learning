@@ -4,6 +4,7 @@ import { installPreferencesMock } from '../test-mocks/capacitor';
 const mock = installPreferencesMock();
 
 import { recordPinyinLearned, recordGameScore, getProgress } from './progressStore';
+import { PUZZLE_GAME_TYPES } from '../data/games';
 
 describe('progressStore', () => {
   beforeEach(() => { mock.reset(); vi.clearAllMocks(); });
@@ -32,5 +33,24 @@ describe('progressStore', () => {
     const { gameScores } = await getProgress(1);
     const best = gameScores.find(g => g.gameType === 'listen');
     expect(best).toMatchObject({ bestScore: 80, bestStars: 3 });
+  });
+
+  it('persists separate puzzle records alongside existing games and isolates users', async () => {
+    await recordGameScore(1, 'listen', 8, 2);
+    for (const type of PUZZLE_GAME_TYPES) {
+      expect((await recordGameScore(1, type, 90, 3)).isNewBest).toBe(true);
+      expect((await recordGameScore(1, type, 60, 1)).isNewBest).toBe(false);
+    }
+    await recordGameScore(2, 'pattern', 50, 1);
+
+    const first = await getProgress(1);
+    expect(first.gameScores).toHaveLength(6);
+    for (const type of PUZZLE_GAME_TYPES) {
+      expect(first.gameScores.find(game => game.gameType === type)).toEqual({
+        gameType: type, bestScore: 90, bestStars: 3,
+      });
+    }
+    expect(first.gameScores.find(game => game.gameType === 'listen')?.bestScore).toBe(8);
+    expect((await getProgress(2)).gameScores).toEqual([{ gameType: 'pattern', bestScore: 50, bestStars: 1 }]);
   });
 });

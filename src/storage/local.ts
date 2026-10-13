@@ -1,12 +1,13 @@
 import { Preferences } from '@capacitor/preferences';
 
-/** 读取并 JSON.parse；缺失或解析失败返回 fallback。 */
-export async function getJSON<T>(key: string, fallback: T): Promise<T> {
+/** 默认缺失或解析失败时回退；strict 将读取错误上抛，避免覆盖已有进度。 */
+export async function getJSON<T>(key: string, fallback: T, options?: { strict?: boolean }): Promise<T> {
   try {
     const { value } = await Preferences.get({ key });
     if (value == null) return fallback;
     return JSON.parse(value) as T;
-  } catch {
+  } catch (error) {
+    if (options?.strict) throw error;
     return fallback;
   }
 }

@@ -1,5 +1,6 @@
 export type PinyinCategory = 'initial' | 'simple-final' | 'compound-final' | 'whole-syllable';
-export type GameType = 'listen' | 'image' | 'memory' | 'hanzi';
+export type PuzzleGameType = 'pattern' | 'sorting' | 'maze' | 'missing' | 'shapes';
+export type GameType = 'listen' | 'image' | 'memory' | 'hanzi' | PuzzleGameType;
 
 export interface ToneVariant {
   tone: 1 | 2 | 3 | 4;
@@ -42,6 +43,13 @@ export interface GameBest {
   gameType: GameType;
   bestScore: number;
   bestStars: number;
+}
+
+export interface PuzzleProgress {
+  gameType: PuzzleGameType;
+  levelScores: number[];
+  bestScore: number | null;
+  isNewBest: boolean;
 }
 
 export interface MnemonicAsset {

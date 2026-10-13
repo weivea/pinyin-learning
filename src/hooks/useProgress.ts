@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import * as progressApi from '../api/progress';
-import type { GameBest, GameType, PinyinProgress } from '../types';
+import { starsForScore } from '../components/gameUtils';
+import { PUZZLE_ROUND_COUNT } from '../data/puzzleGames';
+import type { GameBest, GameType, PinyinProgress, PuzzleGameType, PuzzleProgress } from '../types';
 
 export function useProgress(userId: number | undefined) {
   const [pinyinProgress, setPinyinProgress] = useState<PinyinProgress[]>([]);
   const [gameScores, setGameScores] = useState<GameBest[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [puzzleProgress, setPuzzleProgress] = useState<PuzzleProgress[]>([]);
+  const [loading, setLoading] = useState(Boolean(userId));
+  const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     if (!userId) return;
@@ -14,6 +18,11 @@ export function useProgress(userId: number | undefined) {
       const data = await progressApi.getProgress(userId);
       setPinyinProgress(data.pinyinProgress);
       setGameScores(data.gameScores);
+      setPuzzleProgress(data.puzzleProgress);
+      setError(null);
+    } catch (err) {
+      console.warn('[useProgress] refresh failed', err);
+      setError('进度暂时无法读取，请重试。');
     } finally {
       setLoading(false);
     }
@@ -51,5 +60,46 @@ export function useProgress(userId: number | undefined) {
     }
   }, [userId, refresh]);
 
-  return { pinyinProgress, gameScores, loading, refresh, learnPinyin, recordGame };
+  const updatePuzzle = useCallback((progress: PuzzleProgress) => {
+    setPuzzleProgress(previous => [...previous.filter(item => item.gameType !== progress.gameType), progress]);
+    const bestScore = progress.bestScore;
+    if (bestScore === null) return;
+    setGameScores(previous => {
+      const current = previous.find(item => item.gameType === progress.gameType);
+      return [
+        ...previous.filter(item => item.gameType !== progress.gameType),
+        {
+          gameType: progress.gameType,
+          bestScore: Math.max(current?.bestScore ?? 0, bestScore),
+          bestStars: Math.max(current?.bestStars ?? 0, starsForScore(bestScore, PUZZLE_ROUND_COUNT * 20)),
+        },
+      ];
+    });
+  }, []);
+
+  const savePuzzleLevel = useCallback(async (type: PuzzleGameType, level: number, score: number) => {
+    try {
+      if (!userId) throw new Error('A user is required to save puzzle progress');
+      const progress = await progressApi.savePuzzleLevel(userId, type, level, score);
+      updatePuzzle(progress);
+      return progress;
+    } catch (err) {
+      console.warn('[useProgress] savePuzzleLevel failed', err);
+      return null;
+    }
+  }, [userId, updatePuzzle]);
+
+  const restartPuzzle = useCallback(async (type: PuzzleGameType) => {
+    try {
+      if (!userId) throw new Error('A user is required to restart a puzzle');
+      const progress = await progressApi.restartPuzzle(userId, type);
+      updatePuzzle(progress);
+      return progress;
+    } catch (err) {
+      console.warn('[useProgress] restartPuzzle failed', err);
+      return null;
+    }
+  }, [userId, updatePuzzle]);
+
+  return { pinyinProgress, gameScores, puzzleProgress, loading, error, refresh, learnPinyin, recordGame, savePuzzleLevel, restartPuzzle };
 }

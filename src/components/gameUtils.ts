@@ -1,14 +1,14 @@
-export function shuffle<T>(arr: T[]): T[] {
+export function shuffle<T>(arr: readonly T[], random: () => number = Math.random): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
 }
 
-export function pickN<T>(arr: T[], n: number): T[] {
-  return shuffle(arr).slice(0, n);
+export function pickN<T>(arr: readonly T[], n: number, random: () => number = Math.random): T[] {
+  return shuffle(arr, random).slice(0, n);
 }
 
 export function starsForScore(correct: number, total: number): 0 | 1 | 2 | 3 {
