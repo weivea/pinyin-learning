@@ -9,17 +9,12 @@ import { readVisitedHanzi } from '../utils/hanziProgress';
 import { READINGS } from '../data/readings';
 import { readVisitedReadings } from '../utils/readingProgress';
 import { StarRating } from '../components/StarRating';
-
-const GAME_LABELS: Record<string, string> = {
-  listen: '🎧 听音选字母',
-  image: '🖼 看图选拼音',
-  memory: '🃏 翻牌配对',
-  hanzi: '✍️ 跟我写汉字',
-};
+import { ALL_GAME_TYPES, GAME_INFO, isPuzzleGame } from '../data/games';
+import { PUZZLE_ROUND_COUNT } from '../data/puzzleGames';
 
 export function ProfilePage() {
   const { user, logout } = useUser();
-  const { pinyinProgress, gameScores } = useProgress(user?.id);
+  const { pinyinProgress, gameScores, puzzleProgress, error, refresh } = useProgress(user?.id);
   const learnedSet = useMemo(() => new Set(pinyinProgress.map(p => p.pinyin)), [pinyinProgress]);
   const visitedHanzi = useMemo(() => readVisitedHanzi(user?.id), [user?.id]);
   const visitedReadings = useMemo(() => readVisitedReadings(user?.id), [user?.id]);
@@ -83,18 +78,33 @@ export function ProfilePage() {
         </Link>
 
         <h2 style={{ fontSize: 28, marginTop: 32 }}>游戏成绩</h2>
+        {error && (
+          <div role="alert">
+            <p>{error}</p>
+            <button onClick={() => void refresh()}>重试读取进度</button>
+          </div>
+        )}
         <div style={{ display: 'grid', gap: 12 }}>
-          {(['listen', 'image', 'memory', 'hanzi'] as const).map(gt => {
+          {ALL_GAME_TYPES.map(gt => {
             const score = gameScores.find(g => g.gameType === gt);
+            const puzzle = puzzleProgress.find(progress => progress.gameType === gt);
             return (
-              <div key={gt} style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              <div key={gt} role="group" aria-label={`${GAME_INFO[gt].label}成绩`} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8,
                 padding: 16, borderRadius: 16, background: '#fff', border: '2px solid #8ecae6',
               }}>
-                <span style={{ fontSize: 22 }}>{GAME_LABELS[gt]}</span>
+                <div>
+                  <span style={{ fontSize: 22 }}>{GAME_INFO[gt].emoji} {GAME_INFO[gt].label}</span>
+                  {isPuzzleGame(gt) && (
+                    <p style={{ margin: '6px 0 0', fontSize: 15, color: '#687684' }}>
+                      已完成 {puzzle?.levelScores.length ?? 0} / {PUZZLE_ROUND_COUNT} 关
+                      {puzzle && ` · 本轮累计 ${puzzle.levelScores.reduce((sum, value) => sum + value, 0)} 分`}
+                    </p>
+                  )}
+                </div>
                 {score
                   ? <span><StarRating stars={score.bestStars as 0 | 1 | 2 | 3} /> 最高 {score.bestScore} 分</span>
-                  : <span style={{ color: '#888' }}>还没玩过</span>}
+                  : <span style={{ color: '#888' }}>{puzzle?.levelScores.length ? `完成 ${PUZZLE_ROUND_COUNT} 关后领取星星` : '还没玩过'}</span>}
               </div>
             );
           })}

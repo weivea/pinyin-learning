@@ -1,9 +1,11 @@
-import type { PinyinProgress, GameBest, GameType } from '../types';
+import type { PinyinProgress, GameBest, GameType, PuzzleProgress } from '../types';
 import * as store from '../storage/progressStore';
+export { savePuzzleLevel, restartPuzzle } from '../storage/puzzleStore';
 
 export interface ProgressResponse {
   pinyinProgress: PinyinProgress[];
   gameScores: GameBest[];
+  puzzleProgress: PuzzleProgress[];
 }
 
 export function getProgress(userId: number): Promise<ProgressResponse> {

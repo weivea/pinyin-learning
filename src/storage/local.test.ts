@@ -22,6 +22,11 @@ describe('storage/local', () => {
     expect(await getJSON('bad', 'fallback')).toBe('fallback');
   });
 
+  it('surfaces corrupt JSON when strict checkpoint reads are requested', async () => {
+    mock.raw.set('bad', '{not json');
+    await expect(getJSON('bad', null, { strict: true })).rejects.toThrow();
+  });
+
   it('remove deletes the key', async () => {
     await setJSON('k', 1);
     await remove('k');

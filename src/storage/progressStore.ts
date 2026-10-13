@@ -1,5 +1,8 @@
-import type { GameType, PinyinProgress, GameBest } from '../types';
+import type { GameType, PinyinProgress, GameBest, PuzzleProgress } from '../types';
+import { starsForScore } from '../components/gameUtils';
+import { PUZZLE_ROUND_COUNT } from '../data/puzzleGames';
 import { getJSON, setJSON } from './local';
+import { getPuzzleProgress } from './puzzleStore';
 
 interface GameScoreRow { gameType: GameType; score: number; stars: number; playedAt: number; }
 
@@ -41,9 +44,10 @@ export async function recordGameScore(
 
 export async function getProgress(
   userId: number,
-): Promise<{ pinyinProgress: PinyinProgress[]; gameScores: GameBest[] }> {
+): Promise<{ pinyinProgress: PinyinProgress[]; gameScores: GameBest[]; puzzleProgress: PuzzleProgress[] }> {
   const pinyinProgress = await getJSON<PinyinProgress[]>(pinyinKey(userId), []);
   const rows = await getJSON<GameScoreRow[]>(gameKey(userId), []);
+  const puzzleProgress = await getPuzzleProgress(userId);
 
   const byType = new Map<GameType, GameBest>();
   for (const r of rows) {
@@ -55,5 +59,14 @@ export async function getProgress(
       cur.bestStars = Math.max(cur.bestStars, r.stars);
     }
   }
-  return { pinyinProgress, gameScores: [...byType.values()] };
+  for (const progress of puzzleProgress) {
+    if (progress.bestScore === null) continue;
+    const current = byType.get(progress.gameType);
+    byType.set(progress.gameType, {
+      gameType: progress.gameType,
+      bestScore: Math.max(current?.bestScore ?? 0, progress.bestScore),
+      bestStars: Math.max(current?.bestStars ?? 0, starsForScore(progress.bestScore, PUZZLE_ROUND_COUNT * 20)),
+    });
+  }
+  return { pinyinProgress, gameScores: [...byType.values()], puzzleProgress };
 }

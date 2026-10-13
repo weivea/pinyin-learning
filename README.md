@@ -1,6 +1,6 @@
 # 我爱学习 · Pinyin Learning (iOS)
 
-A standalone **Capacitor iOS offline app** built for young learners (ages 3–5). All content — pinyin data, audio, and games — is bundled in the app; progress is stored locally on device.
+A standalone **Capacitor iOS offline app** built for young learners (ages 3–6), with preschool puzzle games designed for ages 5–6. All content — pinyin data, audio, and games — is bundled in the app; progress is stored locally on device.
 
 ## Features
 
@@ -11,7 +11,29 @@ A standalone **Capacitor iOS offline app** built for young learners (ages 3–5)
 - **English alphabet**: 26-letter A–Z module — tap 🔊 to hear the letter name (native en-US TTS), open a letter for its intro, stroke-drawing animation, pinyin reading, example word, and a finger-tracing practice canvas
 - **拼音学汉字 (Learn Chinese characters)**: ~1000 basic characters for pre–grade-3 (统编版 一/二年级 写字表 800 字 + 常用高频字 200)，按册浏览；每字详情页含拼音、朗读、**笔顺动画**、组词、造句。字表数据由 `scripts/gen-hanzi.mjs` 生成（拼音 pinyin-pro、组词 jieba 词频∩教材词汇、造句模板 + `scripts/overrides.mjs` 人工覆盖）；笔顺数据由 `scripts/gen-strokes.mjs` 从 hanzi-writer-data 抽取为离线 `public/hanzi-strokes.json`（约 2.2 MB，含全部 1000 字）
 - **短文阅读**: 20 篇由易到难的原创低龄短文，每篇 80–120 字；所有汉字逐字注音，每篇最多 5 个生字并可点开查看，支持按句高亮朗读、暂停和继续
-- **Three games**: interactive games for pinyin learning
+- **Nine games**: four pinyin/character games plus five preschool puzzle games, with separate best scores and stars in 我的进度
+
+### Preschool puzzle games (ages 5–6)
+
+Open **玩游戏 → 动脑小游戏** to play:
+
+| Game | Activity and progression |
+| --- | --- |
+| 规律小火车 | 50 repeating fruit patterns, from alternating pairs to grouped patterns and missing middle items |
+| 动物分类屋 | 50 animal groups: classify by species, color, and size, then switch between rules with more mixed attributes |
+| 小兔找萝卜 | 50 connected mazes, progressing from 5×5 to 5×7 boards; use adjacent tiles, direction buttons, or arrow keys; backtracking is allowed |
+| 谁藏起来了 | 50 arrangements of 3–6 pictures; start recalling only when ready and peek again when needed |
+| 图形拼拼乐 | 50 original geometric pictures with 2–4 large pieces, including animals, vehicles, buildings, and everyday objects; later levels add rotation and reduce outlines |
+
+Each game has **50 self-paced levels**, with difficulty grouped into five stages. Level contents are deterministic: returning to a level does not reshuffle the problem. Spoken instructions, optional visual hints, unlimited retries, and an exit back to game selection are available throughout. Sorting and shape puzzles support both tap-to-select/tap-to-place and drag-and-drop; no precise dragging is required. Levels advance only when the child chooses; children do not need to complete all 50 in one sitting.
+
+**Every completed level is saved locally**, separately for each nickname/profile and game. Leaving or reloading resumes at the first unfinished level, with earned points intact; an unfinished level starts over. The game cards and 我的进度 show completed levels. If saving fails, the completed board stays available with a retry button instead of advancing or claiming the progress was saved.
+
+Each completed level earns 10–20 points (20 minus 2 per mistaken answer or use of help, with a floor of 10). Replaying the same visual hint does not cost additional points; peeking again in the memory game counts as help. Finishing all 50 levels yields 500–1000 points and at least one star; 700 points earns two and 900 earns three. The final checkpoint and best score share one storage write, and retries cannot count a level twice. After completing all 50 levels, a child can view the result or explicitly start a new run; replaying preserves the best score. There are no time bonuses, countdowns, or lives.
+
+Best scores from the original five-round games are retained. The new 50-level course has its own saved progress and does not infer completed levels from a legacy best score.
+
+All puzzle data and SVG artwork ship with the app. Instructions use the existing speech service and native TTS fallback; gameplay never waits for speech and remains playable without audio or a network connection. Difficulty increases within a session; these games are not assessments of a child's development or intelligence.
 
 ## Quick Start
 
