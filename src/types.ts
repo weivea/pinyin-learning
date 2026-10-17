@@ -49,6 +49,7 @@ export interface PuzzleProgress {
   gameType: PuzzleGameType;
   levelScores: number[];
   bestScore: number | null;
+  bestStars: 0 | 1 | 2 | 3;
   isNewBest: boolean;
 }
 

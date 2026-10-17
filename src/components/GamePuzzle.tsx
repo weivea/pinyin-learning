@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ComponentType } from 'react';
 import { speak, stopSpeaking } from '../audio/speak';
 import { GAME_INFO } from '../data/games';
-import { PUZZLE_ROUND_COUNT, SORT_RULE_LABELS, SORT_RULES, scorePuzzleRound } from '../data/puzzleGames';
+import { PUZZLE_BASE_ROUND_COUNT, PUZZLE_ROUND_COUNT, SORT_RULE_LABELS, SORT_RULES, puzzleStage, scorePuzzleRound } from '../data/puzzleGames';
 import type { PuzzleGameType, PuzzleProgress } from '../types';
 import { starsForScore } from './gameUtils';
 import { StarRating } from './StarRating';
@@ -27,17 +27,19 @@ const HINTS: Record<PuzzleGameType, string> = {
   pattern: '找一找重复的一组，再看看亮起来的水果。',
   sorting: '先选一只小动物，再看看亮起来的小屋。',
   maze: '亮起来的小路可以走。一步一步来，走错也能退回来。',
-  missing: '再看看刚才的伙伴，亮起来的是藏起来的那一位。',
+  missing: '再看看刚才的伙伴，亮起来的是还没找到的伙伴。',
   shapes: '选中亮起来的图形，再对照形状和方向，放进亮起来的轮廓。',
 };
 
 function instructions(type: PuzzleGameType, level: number): string {
   switch (type) {
-    case 'pattern': return '水果一组一组排好队。问号车厢该装什么？点一点下面的水果。';
+    case 'pattern': return level < 60
+      ? '水果一组一组排好队。问号车厢该装什么？点一点下面的水果。'
+      : '水果一组一组排好队。先填亮边框的问号车厢，再接着填，直到所有问号都填好。';
     case 'sorting': return `这一关按${SORT_RULE_LABELS[SORT_RULES[level]]}找家。先点一只小动物，再点它的小屋，也可以拖过去。`;
     case 'maze': return '帮小兔找到胡萝卜。点旁边的小路，或用方向按钮，一次走一格。走错可以退回来。';
-    case 'missing': return '慢慢看，记住这些伙伴。准备好了点我记住了，再找谁藏起来了。';
-    case 'shapes': return `看看小样图。先选一块图形，再点它的位置，也可以拖过去。${level >= 20 ? '方向不同，还可以转一转。' : ''}`;
+    case 'missing': return `慢慢看，记住这些伙伴。准备好了点我记住了，再找${level < 60 ? '谁藏起来了' : '所有藏起来的伙伴'}。${level >= 70 ? '伙伴们还会换位置哦。' : ''}`;
+    case 'shapes': return `看看小样图。先选一块图形，再点它的位置，也可以拖过去。${level >= 20 ? '方向不同，还可以转一转。' : ''}${level >= 70 ? '这一关也要比一比大小。' : ''}`;
   }
 }
 
@@ -191,6 +193,7 @@ export function GamePuzzle({ type, progress, onSaveLevel, onRestart, onFinish, o
           <span style={{ width: `${savedCount / PUZZLE_ROUND_COUNT * 100}%` }} />
         </span>
       </div>
+      {!showCompleted && level >= PUZZLE_BASE_ROUND_COUNT && <p className="puzzle-stage">进阶挑战 · 第 {puzzleStage(level) - 4} 阶段</p>}
       <p className="puzzle-saved-progress">已保存 {savedCount} 关 · 本轮累计 {score} 分</p>
       <div className="puzzle-instructions">
         <p>{instruction}</p>

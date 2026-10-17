@@ -1,20 +1,26 @@
 import { PUZZLE_GAME_TYPES } from '../data/games';
-import { PUZZLE_ROUND_COUNT, puzzleStage } from '../data/puzzleGames';
+import { PUZZLE_BASE_ROUND_COUNT, PUZZLE_ROUND_COUNT, puzzleStage } from '../data/puzzleGames';
+import { starsForScore } from '../components/gameUtils';
 import type { PuzzleGameType, PuzzleProgress } from '../types';
 import { getJSON, setJSON } from './local';
 
 const puzzleKey = (userId: number, type: PuzzleGameType) => `pinyin:puzzle-progress:${userId}:${type}`;
 
-function validProgress(value: unknown, type: PuzzleGameType): value is PuzzleProgress {
+type StoredPuzzleProgress = Omit<PuzzleProgress, 'bestStars'> & { bestStars?: PuzzleProgress['bestStars'] };
+
+function validProgress(value: unknown, type: PuzzleGameType): value is StoredPuzzleProgress {
   if (typeof value !== 'object' || value === null) return false;
+  const legacy = !('bestStars' in value);
   return 'gameType' in value && value.gameType === type
     && 'levelScores' in value && Array.isArray(value.levelScores)
-    && value.levelScores.length <= PUZZLE_ROUND_COUNT
+    && value.levelScores.length <= (legacy ? PUZZLE_BASE_ROUND_COUNT : PUZZLE_ROUND_COUNT)
     && value.levelScores.every(score => Number.isInteger(score) && score >= 10 && score <= 20)
     && 'bestScore' in value
     && (value.bestScore === null || (typeof value.bestScore === 'number'
-      && Number.isInteger(value.bestScore) && value.bestScore >= PUZZLE_ROUND_COUNT * 10
-      && value.bestScore <= PUZZLE_ROUND_COUNT * 20))
+      && Number.isInteger(value.bestScore) && value.bestScore >= PUZZLE_BASE_ROUND_COUNT * 10
+      && value.bestScore <= (legacy ? PUZZLE_BASE_ROUND_COUNT : PUZZLE_ROUND_COUNT) * 20))
+    && (legacy || ('bestStars' in value && typeof value.bestStars === 'number' && Number.isInteger(value.bestStars)
+      && value.bestStars <= 3 && (value.bestScore === null ? value.bestStars === 0 : value.bestStars >= 1)))
     && 'isNewBest' in value && typeof value.isNewBest === 'boolean';
 }
 
@@ -22,7 +28,11 @@ async function readPuzzle(userId: number, type: PuzzleGameType): Promise<PuzzleP
   const value = await getJSON<unknown>(puzzleKey(userId, type), null, { strict: true });
   if (value === null) return null;
   if (!validProgress(value, type)) throw new Error(`Invalid saved puzzle progress: ${type}`);
-  return value;
+  // Old fifty-level awards keep their original denominator, even after a later run.
+  return {
+    ...value,
+    bestStars: value.bestStars ?? (value.bestScore === null ? 0 : starsForScore(value.bestScore, PUZZLE_BASE_ROUND_COUNT * 20)),
+  };
 }
 
 export async function getPuzzleProgress(userId: number): Promise<PuzzleProgress[]> {
@@ -38,7 +48,7 @@ export async function savePuzzleLevel(
 ): Promise<PuzzleProgress> {
   puzzleStage(level);
   if (!Number.isInteger(score) || score < 10 || score > 20) throw new RangeError(`Invalid puzzle score: ${score}`);
-  const current = await readPuzzle(userId, type) ?? { gameType: type, levelScores: [], bestScore: null, isNewBest: false };
+  const current = await readPuzzle(userId, type) ?? { gameType: type, levelScores: [], bestScore: null, bestStars: 0, isNewBest: false };
   if (level < current.levelScores.length) {
     if (current.levelScores[level] !== score) throw new Error('This level has already been saved with a different score');
     return current;
@@ -47,10 +57,12 @@ export async function savePuzzleLevel(
   const levelScores = [...current.levelScores, score];
   const total = levelScores.reduce((sum, value) => sum + value, 0);
   const isNewBest = levelScores.length === PUZZLE_ROUND_COUNT && (current.bestScore === null || total > current.bestScore);
+  const stars = levelScores.length === PUZZLE_ROUND_COUNT ? starsForScore(total, PUZZLE_ROUND_COUNT * 20) : 0;
   const next: PuzzleProgress = {
     gameType: type,
     levelScores,
     bestScore: isNewBest ? total : current.bestScore,
+    bestStars: stars > current.bestStars ? stars : current.bestStars,
     isNewBest,
   };
   // The last level and its best score share one write, so a restart cannot lose the result.

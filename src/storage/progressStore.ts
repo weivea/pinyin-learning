@@ -1,6 +1,4 @@
 import type { GameType, PinyinProgress, GameBest, PuzzleProgress } from '../types';
-import { starsForScore } from '../components/gameUtils';
-import { PUZZLE_ROUND_COUNT } from '../data/puzzleGames';
 import { getJSON, setJSON } from './local';
 import { getPuzzleProgress } from './puzzleStore';
 
@@ -65,7 +63,7 @@ export async function getProgress(
     byType.set(progress.gameType, {
       gameType: progress.gameType,
       bestScore: Math.max(current?.bestScore ?? 0, progress.bestScore),
-      bestStars: Math.max(current?.bestStars ?? 0, starsForScore(progress.bestScore, PUZZLE_ROUND_COUNT * 20)),
+      bestStars: Math.max(current?.bestStars ?? 0, progress.bestStars),
     });
   }
   return { pinyinProgress, gameScores: [...byType.values()], puzzleProgress };
