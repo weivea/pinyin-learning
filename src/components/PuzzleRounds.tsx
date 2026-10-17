@@ -11,6 +11,8 @@ import {
   canMoveInMaze,
   canPlaceShape,
   mazePath,
+  shapeMatchesSlot,
+  sortAnimalValue,
   type Picture,
   type ShapeKind,
   type ShapePiece,
@@ -36,23 +38,34 @@ function PictureContents({ picture }: { picture: Picture }) {
   );
 }
 
-export function PatternPuzzle({ level, hint, solved, onComplete, onMistake }: PuzzleRoundProps) {
+export function PatternPuzzle({ level, hint, solved, onComplete, onMistake, onNotice }: PuzzleRoundProps) {
   const [round] = useState(() => buildPatternRound(level));
+  const [filled, setFilled] = useState<number[]>([]);
+  const currentGap = round.gaps.find(gap => !filled.includes(gap));
   return (
     <div className="puzzle-round">
-      <div className="pattern-train" aria-label="水果小火车">
+      <div className={`pattern-train ${round.sequence.length > 9 ? 'pattern-train-advanced' : ''}`} aria-label="水果小火车">
         <span className="train-engine" aria-hidden="true">🚂</span>
-        {round.sequence.map((picture, index) => (
-          <div
-            key={index}
-            className={`train-wagon ${index === round.gap ? 'train-gap' : ''}`}
-            aria-label={`第 ${index + 1} 节车厢：${index === round.gap && !solved ? '问号' : picture.label}`}
-          >
-            <span aria-hidden="true">{index === round.gap && !solved ? '?' : picture.emoji}</span>
-            <small aria-hidden="true">{index + 1}</small>
-          </div>
-        ))}
+        {round.sequence.map((picture, index) => {
+          const hidden = round.gaps.includes(index) && !filled.includes(index) && !solved;
+          return (
+            <div
+              key={index}
+              className={`train-wagon ${hidden ? 'train-gap' : ''} ${index === currentGap ? 'train-current-gap' : ''}`}
+              aria-label={`第 ${index + 1} 节车厢：${hidden ? '问号' : picture.label}`}
+              aria-current={index === currentGap ? 'step' : undefined}
+            >
+              <span aria-hidden="true">{hidden ? '?' : picture.emoji}</span>
+              <small aria-hidden="true">{index + 1}</small>
+            </div>
+          );
+        })}
       </div>
+      {round.gaps.length > 1 && (
+        <p className="puzzle-rule">
+          {currentGap === undefined ? '所有车厢都填好啦！' : `已填 ${filled.length} / ${round.gaps.length} 节，接着填第 ${currentGap + 1} 节车厢`}
+        </p>
+      )}
       {hint && (
         <p className="puzzle-hint" aria-label={`重复的一组：${round.unit.map(picture => picture.label).join('、')}`}>
           这一组重复出现：{round.unit.map(picture => picture.emoji).join(' ')}
@@ -62,12 +75,19 @@ export function PatternPuzzle({ level, hint, solved, onComplete, onMistake }: Pu
         {round.options.map(picture => (
           <button
             key={picture.id}
-            className={`puzzle-tile ${hint && picture.id === round.answer.id ? 'is-hinted' : ''}`}
+            className={`puzzle-tile ${hint && currentGap !== undefined && picture.id === round.sequence[currentGap].id ? 'is-hinted' : ''}`}
             aria-label={`选择${picture.label}`}
-            disabled={solved}
+            disabled={solved || currentGap === undefined}
             onClick={() => {
-              if (picture.id === round.answer.id) onComplete('水果排好队，小火车出发啦！');
-              else onMistake('再看看前面的水果，它们是一组一组排队的。');
+              if (solved || currentGap === undefined) return;
+              if (picture.id !== round.sequence[currentGap].id) {
+                onMistake('再看看前面的水果，它们是一组一组排队的。');
+                return;
+              }
+              const next = [...filled, currentGap];
+              setFilled(next);
+              if (next.length === round.gaps.length) onComplete('水果排好队，小火车出发啦！');
+              else onNotice('这一节填对啦！再看看下一个问号。');
             }}
           >
             <PictureContents picture={picture} />
@@ -118,6 +138,8 @@ export function SortingPuzzle({ level, hint, solved, onComplete, onMistake, onNo
   const remaining = round.animals.filter(animal => !placed.includes(animal.id));
   const selectedAnimal = remaining.find(animal => animal.id === selected);
   const hintedAnimal = selectedAnimal ?? remaining[0];
+  const compoundRule = round.groups.length > 2;
+  const visibleAnimals = compoundRule ? remaining.slice(0, 4) : remaining;
 
   function sendHome(value: string, animalId: string | null) {
     if (solved) return;
@@ -126,7 +148,7 @@ export function SortingPuzzle({ level, hint, solved, onComplete, onMistake, onNo
       onNotice('先点一只小动物，再点它的小屋，也可以拖过去。');
       return;
     }
-    if (animal[round.rule] !== value) {
+    if (sortAnimalValue(animal, round.rule) !== value) {
       onMistake(`这一关按${SORT_RULE_LABELS[round.rule]}找家，再看看小屋上的标记。`);
       return;
     }
@@ -140,8 +162,9 @@ export function SortingPuzzle({ level, hint, solved, onComplete, onMistake, onNo
   return (
     <div className="puzzle-round">
       <p className="puzzle-rule">这一关看：<strong>{SORT_RULE_LABELS[round.rule]}</strong></p>
+      {compoundRule && <p>每个条件都要符合哦。还有 {remaining.length} 只等着回家。</p>}
       <div className="sorting-tray" role="group" aria-label="等待回家的小动物">
-        {remaining.map(animal => (
+        {visibleAnimals.map(animal => (
           <button
             key={animal.id}
             className={`puzzle-tile animal-tile ${selected === animal.id ? 'is-selected' : ''} ${hint && !selected && animal.id === hintedAnimal?.id ? 'is-hinted' : ''}`}
@@ -164,13 +187,19 @@ export function SortingPuzzle({ level, hint, solved, onComplete, onMistake, onNo
         ))}
         {remaining.length === 0 && <p className="puzzle-hint">🏡 大家都回家啦！</p>}
       </div>
-      <div className="sorting-houses" role="group" aria-label="小动物的家">
+      {compoundRule && selectedAnimal && (
+        <div className="sorting-selection">
+          <AnimalPicture animal={selectedAnimal} />
+          <span>已选：{animalLabel(selectedAnimal)}</span>
+        </div>
+      )}
+      <div className={`sorting-houses ${compoundRule ? 'sorting-houses-advanced' : ''}`} role="group" aria-label="小动物的家">
         {round.groups.map(group => {
-          const count = round.animals.filter(animal => placed.includes(animal.id) && animal[round.rule] === group.value).length;
+          const count = round.animals.filter(animal => placed.includes(animal.id) && sortAnimalValue(animal, round.rule) === group.value).length;
           return (
             <button
               key={group.value}
-              className={`sorting-house ${hint && hintedAnimal?.[round.rule] === group.value ? 'is-hinted' : ''}`}
+              className={`sorting-house ${hint && hintedAnimal && sortAnimalValue(hintedAnimal, round.rule) === group.value ? 'is-hinted' : ''}`}
               aria-label={`送到${group.label}`}
               disabled={solved}
               onDragOver={event => event.preventDefault()}
@@ -226,7 +255,7 @@ export function MazePuzzle({ level, hint, solved, onComplete, onMistake, onNotic
   return (
     <div className="puzzle-round" onKeyDown={handleKey}>
       <div
-        className="maze-board"
+        className={`maze-board ${round.width > 5 ? 'maze-board-advanced' : ''}`}
         style={{ gridTemplateColumns: `repeat(${round.width}, minmax(0, 1fr))` }}
         role="group"
         aria-label="小兔迷宫，可以用方向键移动"
@@ -279,29 +308,32 @@ export function MazePuzzle({ level, hint, solved, onComplete, onMistake, onNotic
 export function MissingPuzzle({ level, hint, solved, onComplete, onMistake, onNotice }: PuzzleRoundProps) {
   const [round] = useState(() => buildMissingRound(level));
   const [remembering, setRemembering] = useState(true);
+  const [found, setFound] = useState<string[]>([]);
+  const displayed = remembering ? round.pictures : round.recallOrder;
 
   return (
     <div className="puzzle-round">
-      <p className="puzzle-rule">{remembering ? '慢慢看，准备好了再开始' : '谁藏起来了？'}</p>
-      <div className="memory-pictures" role="group" aria-label={remembering ? '记忆物品' : '寻找藏起来的物品'}>
-        {round.pictures.map(picture => (
-          <div
-            key={picture.id}
-            className="memory-picture"
-            aria-label={!remembering && !solved && picture.id === round.missing.id ? '藏起来的物品' : picture.label}
-          >
-            {!remembering && !solved && picture.id === round.missing.id ? (
-              <span className="puzzle-emoji" aria-hidden="true">❔</span>
-            ) : <PictureContents picture={picture} />}
-          </div>
-        ))}
+      <p className="puzzle-rule">
+        {remembering ? '慢慢看，准备好了再开始'
+          : round.missing.length === 1 ? '谁藏起来了？' : `找齐 ${round.missing.length} 位伙伴，已找到 ${found.length} 位`}
+      </p>
+      {!remembering && round.shuffleRecall && <p>伙伴们换位置啦，也有没出现过的选项。想想刚才看到了谁。</p>}
+      <div className={`memory-pictures ${round.pictures.length > 6 ? 'memory-pictures-advanced' : ''}`} role="group" aria-label={remembering ? '记忆物品' : '寻找藏起来的物品'}>
+        {displayed.map(picture => {
+          const hidden = !remembering && !solved && round.missing.includes(picture) && !found.includes(picture.id);
+          return (
+            <div key={picture.id} className="memory-picture" aria-label={hidden ? '藏起来的物品' : picture.label}>
+              {hidden ? <span className="puzzle-emoji" aria-hidden="true">❔</span> : <PictureContents picture={picture} />}
+            </div>
+          );
+        })}
       </div>
       {remembering ? (
         <button
           className="puzzle-action puzzle-primary"
           onClick={() => {
             setRemembering(false);
-            onNotice('一位伙伴藏起来了，你能找到它吗？');
+            onNotice(round.missing.length === 1 ? '一位伙伴藏起来了，你能找到它吗？' : `${round.missing.length}位伙伴藏起来了，把它们都找出来吧。`);
           }}
         >🙌 我记住了</button>
       ) : (
@@ -311,12 +343,23 @@ export function MissingPuzzle({ level, hint, solved, onComplete, onMistake, onNo
             {round.options.map(picture => (
               <button
                 key={picture.id}
-                className={`puzzle-tile ${hint && picture.id === round.missing.id ? 'is-hinted' : ''}`}
+                className={`puzzle-tile ${found.includes(picture.id) ? 'is-selected' : ''} ${hint && round.missing.includes(picture) && !found.includes(picture.id) ? 'is-hinted' : ''}`}
                 aria-label={`选择${picture.label}`}
-                disabled={solved}
+                aria-pressed={found.includes(picture.id)}
+                disabled={solved || found.includes(picture.id)}
                 onClick={() => {
-                  if (picture.id === round.missing.id) onComplete(`找到啦，藏起来的是${picture.label}！`);
-                  else onMistake('它还在上面呢。再想想，也可以再看一眼。');
+                  if (solved || found.includes(picture.id)) return;
+                  if (!round.missing.includes(picture)) {
+                    onMistake(round.pictures.includes(picture)
+                      ? '它还在上面呢。再想想，也可以再看一眼。'
+                      : '它刚才没有出现哦。再想想，也可以再看一眼。');
+                    return;
+                  }
+                  const next = [...found, picture.id];
+                  setFound(next);
+                  if (next.length === round.missing.length) {
+                    onComplete(`找到啦，藏起来的是${round.missing.map(item => item.label).join('、')}！`);
+                  } else onNotice(`找到一位啦！还剩${round.missing.length - next.length}位伙伴。`);
                 }}
               >
                 <PictureContents picture={picture} />
@@ -328,6 +371,7 @@ export function MissingPuzzle({ level, hint, solved, onComplete, onMistake, onNo
             disabled={solved}
             onClick={() => {
               setRemembering(true);
+              setFound([]);
               onMistake('没关系，我们再看一遍，准备好了再开始。');
             }}
           >👀 再看一眼</button>
@@ -378,8 +422,9 @@ export function ShapesPuzzle({ level, hint, solved, onComplete, onMistake, onNot
   const emptySlots = round.slots.filter(slot => !placed[slot.id]);
   const hintedSlot = hintedPiece
     ? emptySlots.find(slot => canPlaceShape(hintedPiece, slot, rotations[hintedPiece.id] ?? hintedPiece.rotation))
-      ?? emptySlots.find(slot => slot.kind === hintedPiece.kind)
+      ?? emptySlots.find(slot => shapeMatchesSlot(hintedPiece, slot))
     : undefined;
+  const largestSize = Math.max(...round.slots.map(slot => slot.size));
 
   function place(slot: ShapeSlot, pieceId: string | null) {
     if (solved || placed[slot.id]) return;
@@ -389,9 +434,9 @@ export function ShapesPuzzle({ level, hint, solved, onComplete, onMistake, onNot
       return;
     }
     if (!canPlaceShape(piece, slot, rotations[piece.id] ?? piece.rotation)) {
-      onMistake(piece.kind === slot.kind
-        ? (round.canRotate ? '形状找对啦！再转一转方向。' : '再看看方向，换一块朝向一样的图形试试。')
-        : '看看小样图和轮廓，换一块图形试试。');
+      onMistake(piece.kind !== slot.kind ? '看看小样图和轮廓，换一块图形试试。'
+        : !shapeMatchesSlot(piece, slot) ? '形状找对啦！再比一比大小，换一块大小合适的图形。'
+        : round.canRotate ? '形状找对啦！再转一转方向。' : '再看看方向，换一块朝向一样的图形试试。');
       return;
     }
     const next = { ...placed, [slot.id]: piece };
@@ -406,7 +451,7 @@ export function ShapesPuzzle({ level, hint, solved, onComplete, onMistake, onNot
       <div className="shape-example">
         <div>
           <strong>拼一拼：{round.title}</strong>
-          <p>{round.showOutlines ? '照着轮廓放一放' : '看看小样图，试着自己拼'}</p>
+          <p>{round.matchSizes ? '形状、大小和方向都要相同哦' : round.showOutlines ? '照着轮廓放一放' : '看看小样图，试着自己拼'}</p>
         </div>
         <svg viewBox="0 0 320 280" role="img" aria-label={`${round.title}的小样图`}>
           {round.slots.map(slot => (
@@ -440,7 +485,7 @@ export function ShapesPuzzle({ level, hint, solved, onComplete, onMistake, onNot
           </button>
         ))}
       </div>
-      <div className="shape-pieces" role="group" aria-label="可用的图形">
+      <div className={`shape-pieces ${round.pieces.length > 4 ? 'shape-pieces-advanced' : ''}`} role="group" aria-label="可用的图形">
         {available.map(piece => (
           <button
             key={piece.id}
@@ -458,7 +503,9 @@ export function ShapesPuzzle({ level, hint, solved, onComplete, onMistake, onNot
               onNotice(`选好了${piece.label}，放到哪里呢？`);
             }}
           >
-            <ShapeDrawing kind={piece.kind} rotation={rotations[piece.id] ?? piece.rotation} color={piece.color} />
+            <span className="shape-piece-art" style={{ width: `${(piece.size ?? largestSize) / largestSize * 100}%` }}>
+              <ShapeDrawing kind={piece.kind} rotation={rotations[piece.id] ?? piece.rotation} color={piece.color} />
+            </span>
           </button>
         ))}
       </div>

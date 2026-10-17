@@ -19,19 +19,29 @@ Open **玩游戏 → 动脑小游戏** to play:
 
 | Game | Activity and progression |
 | --- | --- |
-| 规律小火车 | 50 repeating fruit patterns, from alternating pairs to grouped patterns and missing middle items |
-| 动物分类屋 | 50 animal groups: classify by species, color, and size, then switch between rules with more mixed attributes |
-| 小兔找萝卜 | 50 connected mazes, progressing from 5×5 to 5×7 boards; use adjacent tiles, direction buttons, or arrow keys; backtracking is allowed |
-| 谁藏起来了 | 50 arrangements of 3–6 pictures; start recalling only when ready and peek again when needed |
-| 图形拼拼乐 | 50 original geometric pictures with 2–4 large pieces, including animals, vehicles, buildings, and everyday objects; later levels add rotation and reduce outlines |
+| 规律小火车 | 100 repeating fruit patterns, from alternating pairs to longer grouped patterns, 1–3 missing items, and up to 6 answer choices |
+| 动物分类屋 | 100 animal groups: start with one attribute, then combine two or all three of species, color, and size, using 4–8 houses |
+| 小兔找萝卜 | 100 connected mazes, from 5×5 to 9×13 boards; the added levels require 24–52 moves, with large direction buttons and backtracking throughout |
+| 谁藏起来了 | 100 arrangements of 3–10 pictures; later levels hide 2–3 companions, rearrange the board, and add unfamiliar choices; start recalling only when ready and peek again when needed |
+| 图形拼拼乐 | 100 original geometric pictures with 2–8 pieces; later levels combine rotation, reduced outlines, and matching different sizes of the same shape |
 
-Each game has **50 self-paced levels**, with difficulty grouped into five stages. Level contents are deterministic: returning to a level does not reshuffle the problem. Spoken instructions, optional visual hints, unlimited retries, and an exit back to game selection are available throughout. Sorting and shape puzzles support both tap-to-select/tap-to-place and drag-and-drop; no precise dragging is required. Levels advance only when the child chooses; children do not need to complete all 50 in one sitting.
+Each game has **100 self-paced levels**, in ten stages of ten levels. The original levels 1–50 are unchanged; levels 51–100 add five progressively harder challenge stages:
+
+| Levels | Patterns | Sorting | Mazes | Memory | Shapes |
+| --- | --- | --- | --- | --- | --- |
+| 51–60 | Four-item cycles, 4 choices | Species + color, 6 animals | 7×7, 24–28 moves | 7 pictures, 1 hidden | 5 pieces, rotation |
+| 61–70 | Five-item cycles, 2 gaps | Alternate size-based pairs of rules, 8 animals | 7×9, 30–34 moves | 8 pictures, 2 hidden | 6 pieces, rotation |
+| 71–80 | Six-item cycles, 2 gaps, 5 choices | Switch between all pairs of rules, 10 animals | 9×9, 36–40 moves | 8 pictures, 2 hidden; shuffled positions and unfamiliar choices | 6 pieces; also match sizes |
+| 81–90 | Six-item grouped cycles, 3 gaps | All three attributes, 12 animals | 9×11, 42–46 moves | 9 pictures, 3 hidden, 8 choices | 7 pieces; match sizes and rotation |
+| 91–100 | Seven-item cycles, 3 gaps, 6 choices | All three attributes, 16 animals | 9×13, 48–52 moves | 10 pictures, 3 hidden, 9 choices | 8 pieces; match sizes and rotation |
+
+Level contents are deterministic: returning to a level does not reshuffle the problem. Spoken instructions, optional visual hints, unlimited retries, and an exit back to game selection are available throughout. Sorting and shape puzzles support both tap-to-select/tap-to-place and drag-and-drop; no precise dragging is required. Advanced sorting presents four waiting animals at a time, and larger mazes keep the same large direction controls. Patterns and memory rounds finish only after every missing item is found. Levels advance only when the child chooses; children do not need to complete all 100 in one sitting.
 
 **Every completed level is saved locally**, separately for each nickname/profile and game. Leaving or reloading resumes at the first unfinished level, with earned points intact; an unfinished level starts over. The game cards and 我的进度 show completed levels. If saving fails, the completed board stays available with a retry button instead of advancing or claiming the progress was saved.
 
-Each completed level earns 10–20 points (20 minus 2 per mistaken answer or use of help, with a floor of 10). Replaying the same visual hint does not cost additional points; peeking again in the memory game counts as help. Finishing all 50 levels yields 500–1000 points and at least one star; 700 points earns two and 900 earns three. The final checkpoint and best score share one storage write, and retries cannot count a level twice. After completing all 50 levels, a child can view the result or explicitly start a new run; replaying preserves the best score. There are no time bonuses, countdowns, or lives.
+Each completed level earns 10–20 points (20 minus 2 per mistaken answer or use of help, with a floor of 10). Replaying the same visual hint does not cost additional points; peeking again in the memory game counts as help and restarts recall for that level. Finishing all 100 levels yields 1000–2000 points and at least one star; 1400 points earns two and 1800 earns three. The final checkpoint, best score, and best stars share one storage write, and retries cannot count a level twice. After completing all 100 levels, a child can view the result or explicitly start a new run; replaying preserves the best score and stars. There are no time bonuses, countdowns, or lives.
 
-Best scores from the original five-round games are retained. The new 50-level course has its own saved progress and does not infer completed levels from a legacy best score.
+Existing 50-level saves continue without resetting: a finished course resumes at level 51, and an unfinished course resumes at its first unfinished level. Previously earned points, best scores, and stars are preserved, including after a later lower-star 100-level run. The original five-round best scores are also retained; completed levels are never inferred from a legacy best score.
 
 All puzzle data and SVG artwork ship with the app. Instructions use the existing speech service and native TTS fallback; gameplay never waits for speech and remains playable without audio or a network connection. Difficulty increases within a session; these games are not assessments of a child's development or intelligence.
 

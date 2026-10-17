@@ -32,8 +32,15 @@ async function openGames() {
 
 async function solvePattern(level: number) {
   const round = buildPatternRound(level);
-  fireEvent.click(screen.getByRole('button', { name: `选择${round.answer.label}` }));
-  await screen.findByRole('button', { name: level === 49 ? /收下星星/ : /下一关/ });
+  for (const gap of round.gaps) {
+    fireEvent.click(screen.getByRole('button', { name: `选择${round.sequence[gap].label}` }));
+  }
+  await screen.findByRole('button', { name: level === 99 ? /收下星星/ : /下一关/ });
+}
+
+function firstPatternAnswer(level: number) {
+  const round = buildPatternRound(level);
+  return round.sequence[round.gaps[0]];
 }
 
 describe('GamePage', () => {
@@ -45,7 +52,7 @@ describe('GamePage', () => {
     vi.restoreAllMocks();
   });
 
-  it('retains the original games and opens each fifty-level game from its menu card', async () => {
+  it('retains the original games and opens each hundred-level game from its menu card', async () => {
     await openGames();
     for (const type of ALL_GAME_TYPES) {
       expect(screen.getByRole('button', { name: GAME_INFO[type].label })).toBeInTheDocument();
@@ -54,38 +61,60 @@ describe('GamePage', () => {
       await waitFor(() => expect(screen.getByRole('button', { name: GAME_INFO[type].label })).toBeEnabled());
       fireEvent.click(screen.getByRole('button', { name: GAME_INFO[type].label }));
       expect(screen.getByRole('region', { name: GAME_INFO[type].label })).toBeInTheDocument();
-      expect(screen.getByText('第 1 / 50 关')).toBeInTheDocument();
+      expect(screen.getByText('第 1 / 100 关')).toBeInTheDocument();
       fireEvent.click(screen.getByRole('button', { name: /选游戏/ }));
     }
     expect(await getPuzzleProgress(1)).toEqual([]);
   });
 
-  it('persists level 50 and its result once before showing the completion screen', async () => {
-    for (let level = 0; level < 49; level++) await savePuzzleLevel(1, 'pattern', level, 20);
+  it('persists level 100 and its result once before showing the completion screen', async () => {
+    for (let level = 0; level < 99; level++) await savePuzzleLevel(1, 'pattern', level, 20);
     await openGames();
     fireEvent.click(screen.getByRole('button', { name: '规律小火车' }));
-    expect(screen.getByText('第 50 / 50 关')).toBeInTheDocument();
+    expect(screen.getByText('第 100 / 100 关')).toBeInTheDocument();
     let resolveSave!: () => void;
     const save = vi.spyOn(Preferences, 'set').mockImplementationOnce(({ key, value }) => new Promise(resolve => {
       resolveSave = () => { mock.raw.set(key, value); resolve(); };
     }));
-    const answer = screen.getByRole('button', { name: `选择${buildPatternRound(49).answer.label}` });
+    const round = buildPatternRound(99);
+    for (const gap of round.gaps.slice(0, -1)) {
+      fireEvent.click(screen.getByRole('button', { name: `选择${round.sequence[gap].label}` }));
+    }
+    expect(save).not.toHaveBeenCalled();
+    const answer = screen.getByRole('button', { name: `选择${round.sequence[round.gaps.at(-1)!].label}` });
     fireEvent.click(answer);
     fireEvent.click(answer);
     await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
     expect(screen.getByRole('button', { name: '正在保存本关…' })).toBeDisabled();
     await act(async () => { resolveSave(); });
-    expect((await getPuzzleProgress(1))[0].levelScores).toHaveLength(50);
+    expect((await getPuzzleProgress(1))[0].levelScores).toHaveLength(100);
     fireEvent.click(screen.getByRole('button', { name: /收下星星/ }));
-    expect(screen.getByText('得分：1000')).toBeInTheDocument();
+    expect(screen.getByText('得分：2000')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /新纪录/ })).toBeInTheDocument();
     expect(save).toHaveBeenCalledTimes(1);
     expect(mock.raw.has('pinyin:games:1')).toBe(false);
     fireEvent.click(screen.getByRole('button', { name: '再选游戏' }));
     await waitFor(() => expect(screen.getByRole('button', { name: '规律小火车' })).toBeEnabled());
-    expect(screen.getByRole('button', { name: '规律小火车' })).toHaveTextContent('50 关已通关');
+    expect(screen.getByRole('button', { name: '规律小火车' })).toHaveTextContent('100 关已通关');
     fireEvent.click(screen.getByRole('button', { name: '规律小火车' }));
-    expect(screen.getByRole('heading', { name: /全部 50 关已完成/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /全部 100 关已完成/ })).toBeInTheDocument();
+  });
+
+  it.each(PUZZLE_GAME_TYPES)('offers level 51 for a saved fifty-level %s course', async type => {
+    const key = `pinyin:puzzle-progress:1:${type}`;
+    const oldSave = JSON.stringify({
+      gameType: type, levelScores: Array(50).fill(18), bestScore: 900, isNewBest: true,
+    });
+    mock.raw.set(key, oldSave);
+    await openGames();
+    const card = screen.getByRole('button', { name: GAME_INFO[type].label });
+    expect(card).toHaveTextContent('已完成 50 / 100 关 · 继续第 51 关');
+    fireEvent.click(card);
+    expect(screen.getByText('第 51 / 100 关')).toBeInTheDocument();
+    expect(screen.getByText('已保存 50 关 · 本轮累计 900 分')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '再玩一轮' })).not.toBeInTheDocument();
+    expect(mock.raw.get(key)).toBe(oldSave);
+    expect((await getProgress(1)).gameScores).toEqual([{ gameType: type, bestScore: 900, bestStars: 3 }]);
   });
 
   it('shows a failed level save and resumes only after a successful retry', async () => {
@@ -93,7 +122,7 @@ describe('GamePage', () => {
     await openGames();
     fireEvent.click(screen.getByRole('button', { name: '规律小火车' }));
     const save = vi.spyOn(Preferences, 'set').mockRejectedValueOnce(new Error('full'));
-    fireEvent.click(screen.getByRole('button', { name: `选择${buildPatternRound(0).answer.label}` }));
+    fireEvent.click(screen.getByRole('button', { name: `选择${firstPatternAnswer(0).label}` }));
     expect(await screen.findByRole('alert')).toHaveTextContent('这一关的保存尚未确认');
     expect(await getPuzzleProgress(1)).toEqual([]);
     fireEvent.click(screen.getByRole('button', { name: '重试保存本关' }));
@@ -112,14 +141,14 @@ describe('GamePage', () => {
     await solvePattern(0);
     fireEvent.click(screen.getByRole('button', { name: /下一关/ }));
     const round = buildPatternRound(1);
-    const wrong = round.options.find(picture => picture.id !== round.answer.id)!;
+    const wrong = round.options.find(picture => picture.id !== round.sequence[round.gaps[0]].id)!;
     fireEvent.click(screen.getByRole('button', { name: `选择${wrong.label}` }));
     fireEvent.click(screen.getByRole('button', { name: /选游戏/ }));
-    expect(screen.getByRole('button', { name: '规律小火车' })).toHaveTextContent('已完成 1 / 50 关');
+    expect(screen.getByRole('button', { name: '规律小火车' })).toHaveTextContent('已完成 1 / 100 关');
     first.unmount();
     await openGames();
     fireEvent.click(screen.getByRole('button', { name: '规律小火车' }));
-    expect(screen.getByText('第 2 / 50 关')).toBeInTheDocument();
+    expect(screen.getByText('第 2 / 100 关')).toBeInTheDocument();
     expect(screen.getByText('已保存 1 关 · 本轮累计 20 分')).toBeInTheDocument();
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1');
     expect((await getPuzzleProgress(1))[0].levelScores).toEqual([20]);
@@ -146,13 +175,13 @@ describe('GamePage', () => {
       mock.raw.set(key, value);
       throw new Error('lost acknowledgement');
     });
-    fireEvent.click(screen.getByRole('button', { name: `选择${buildPatternRound(0).answer.label}` }));
+    fireEvent.click(screen.getByRole('button', { name: `选择${firstPatternAnswer(0).label}` }));
     await screen.findByRole('alert');
     fireEvent.click(screen.getByRole('button', { name: /选游戏/ }));
     await waitFor(() => expect(screen.getByRole('button', { name: '规律小火车' })).toBeEnabled());
     expect(screen.getByRole('button', { name: '规律小火车' })).toHaveTextContent('继续第 2 关');
     fireEvent.click(screen.getByRole('button', { name: '规律小火车' }));
-    expect(screen.getByText('第 2 / 50 关')).toBeInTheDocument();
+    expect(screen.getByText('第 2 / 100 关')).toBeInTheDocument();
   });
 
   it('preserves the original games and their result-save retry flow', async () => {

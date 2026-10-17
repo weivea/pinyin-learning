@@ -27,6 +27,7 @@
 .puzzle-progress-track { width: 150px; height: 12px; overflow: hidden; border-radius: 8px; background: #e1e8e7; }
 .puzzle-progress-track > span { display: block; height: 100%; background: #70b38a; border-radius: inherit; }
 .puzzle-saved-progress { margin: 8px 0 0; color: #687684; font-size: 14px; }
+.puzzle-stage { margin: 10px 0 0; color: #8c4d13; font-size: 15px; font-weight: 600; }
 .puzzle-save-error { padding: 14px; border-radius: 14px; background: #fff0cf; color: #825719; line-height: 1.7; }
 .puzzle-completed { padding: 24px 12px; border-radius: 24px; background: #fff; }
 .puzzle-completed h3 { font-size: 24px; }
@@ -138,6 +139,10 @@
 
 .train-wagon small { font-size: 12px; }
 .train-gap { border-style: dashed; background: #fff; color: #985908; font-weight: 800; }
+.train-current-gap { outline: 3px solid #257cad; outline-offset: 2px; }
+.pattern-train-advanced { gap: 6px; }
+.pattern-train-advanced .train-engine { font-size: 32px; }
+.pattern-train-advanced .train-wagon { width: clamp(38px, 8vw, 52px); min-height: 64px; font-size: clamp(28px, 4vw, 36px); }
 
 .sorting-tray { min-height: 140px; margin-bottom: 24px; }
 .animal-tile { width: 112px; min-height: 118px; }
@@ -159,6 +164,25 @@
   font-size: 19px;
 }
 .house-roof { position: absolute; top: -22px; font-size: 30px; color: #4a7353; background: #fffdf7; line-height: 1; }
+.sorting-selection {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 8px;
+  border-radius: 12px;
+  background: #e6f5ff;
+}
+.sorting-selection .sorting-animal { width: 48px; height: 48px; }
+.sorting-selection .sorting-animal-small { width: 30px; height: 30px; margin-top: 18px; }
+.sorting-houses-advanced { grid-template-columns: repeat(auto-fit, minmax(125px, 1fr)); gap: 14px 10px; }
+.sorting-houses-advanced .sorting-house { min-height: 132px; padding: 12px 6px 8px; font-size: 15px; }
+.sorting-houses-advanced .sorting-animal { width: 56px; height: 56px; }
+.sorting-houses-advanced .sorting-animal-small { width: 36px; height: 36px; margin-top: 20px; }
 
 .maze-board {
   display: grid;
@@ -180,6 +204,8 @@
 }
 .maze-wall { background: #cee6be; border-color: #bfd8b3; font-size: clamp(24px, 6vw, 34px); }
 .maze-rabbit { background: #fff; border-color: #ad927e; }
+.maze-board-advanced { max-width: 440px; gap: 3px; }
+.maze-board-advanced .maze-cell { font-size: clamp(16px, 4vw, 26px); border-radius: 5px; }
 .maze-controls {
   display: grid;
   grid-template-columns: repeat(3, 56px);
@@ -209,6 +235,10 @@
   background: #f5effb;
 }
 .memory-pictures + .puzzle-action { margin-top: 4px; }
+.memory-pictures-advanced { gap: 8px; }
+.memory-pictures-advanced .memory-picture { width: 70px; min-height: 86px; padding: 6px; }
+.memory-pictures-advanced .puzzle-emoji { font-size: 36px; }
+.memory-pictures-advanced .puzzle-item-label { font-size: 12px; }
 .puzzle-choices + .puzzle-action { margin-top: 18px; }
 
 .shape-example { max-width: 440px; margin: 0 auto 10px; text-align: left; }
@@ -231,7 +261,10 @@
 .shape-slot:disabled { opacity: 1; }
 .shape-slot svg { display: block; }
 .shape-pieces { min-height: 78px; flex-wrap: nowrap; }
+.shape-pieces-advanced { flex-wrap: wrap; }
 .shape-pieces .shape-piece { flex: 0 1 78px; width: 78px; height: auto; aspect-ratio: 1; min-width: 54px; min-height: 54px; padding: 6px; }
+.shape-piece-art { display: block; aspect-ratio: 1; }
+.shape-piece-art svg { display: block; }
 .shape-pieces + .puzzle-action { margin-top: 16px; }
 
 .puzzle-feedback {
@@ -254,4 +287,6 @@
   .animal-tile { width: 100px; }
   .puzzle-instructions { padding: 10px; gap: 8px; }
   .puzzle-action { padding-left: 12px; padding-right: 12px; }
+  .shape-pieces-advanced { gap: 8px; }
+  .shape-pieces-advanced .shape-piece { flex-basis: 58px; width: 58px; padding: 4px; border-radius: 16px; }
 }

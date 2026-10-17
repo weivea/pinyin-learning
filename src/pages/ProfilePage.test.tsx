@@ -51,12 +51,24 @@ describe('ProfilePage game progress', () => {
 
   it('shows saved partial-course progress and points before a final best score exists', () => {
     state.puzzleProgress = [{
-      gameType: 'sorting', levelScores: [20, 18, 16], bestScore: null, isNewBest: false,
+      gameType: 'sorting', levelScores: [20, 18, 16], bestScore: null, bestStars: 0, isNewBest: false,
     }];
     render(<MemoryRouter><ProfilePage /></MemoryRouter>);
     const row = screen.getByRole('group', { name: '动物分类屋成绩' });
-    expect(within(row).getByText('已完成 3 / 50 关 · 本轮累计 54 分')).toBeInTheDocument();
+    expect(within(row).getByText('已完成 3 / 100 关 · 本轮累计 54 分')).toBeInTheDocument();
     expect(within(row).queryByText('还没玩过')).not.toBeInTheDocument();
-    expect(within(row).getByText('完成 50 关后领取星星')).toBeInTheDocument();
+    expect(within(row).getByText('完成 100 关后领取星星')).toBeInTheDocument();
+  });
+
+  it('shows an old completed course as 50 of 100 while keeping its earned awards', () => {
+    state.puzzleProgress = [{
+      gameType: 'pattern', levelScores: Array(50).fill(18), bestScore: 900, bestStars: 3, isNewBest: true,
+    }];
+    state.gameScores = [{ gameType: 'pattern', bestScore: 900, bestStars: 3 }];
+    render(<MemoryRouter><ProfilePage /></MemoryRouter>);
+    const row = screen.getByRole('group', { name: '规律小火车成绩' });
+    expect(within(row).getByText('已完成 50 / 100 关 · 本轮累计 900 分')).toBeInTheDocument();
+    expect(within(row).getByText('最高 900 分', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('⭐ 3')).toBeInTheDocument();
   });
 });

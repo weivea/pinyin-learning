@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import * as progressApi from '../api/progress';
-import { starsForScore } from '../components/gameUtils';
-import { PUZZLE_ROUND_COUNT } from '../data/puzzleGames';
 import type { GameBest, GameType, PinyinProgress, PuzzleGameType, PuzzleProgress } from '../types';
 
 export function useProgress(userId: number | undefined) {
@@ -71,7 +69,7 @@ export function useProgress(userId: number | undefined) {
         {
           gameType: progress.gameType,
           bestScore: Math.max(current?.bestScore ?? 0, bestScore),
-          bestStars: Math.max(current?.bestStars ?? 0, starsForScore(bestScore, PUZZLE_ROUND_COUNT * 20)),
+          bestStars: Math.max(current?.bestStars ?? 0, progress.bestStars),
         },
       ];
     });
